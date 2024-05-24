@@ -10,7 +10,7 @@ import { SocialLink } from '~/components/links/SocialLink'
 function Developer() {
   return (
     <span className="group">
-      <span className="font-mono">&lt;</span>前端 JS-Vue-React
+      <span className="font-mono">&lt;</span>前端
       <span className="font-mono">/&gt;</span>
       <span className="invisible inline-flex text-zinc-300 before:content-['|'] group-hover:visible group-hover:animate-typing dark:text-zinc-500" />
     </span>
@@ -35,7 +35,7 @@ function OCD() {
   return (
     <span className="group inline-flex items-center">
       <SparkleIcon className="mr-1 inline-flex transform-gpu transition-transform duration-500 group-hover:rotate-180" />
-      <span>XXX</span>
+      <span>Vue&React</span>
     </span>
   )
 }
@@ -77,7 +77,7 @@ export function Headline() {
       >
         {<Balancer>
           我是 舒克，
-          {<PeekabooLink href="https://zolplay.com">佐玩</PeekabooLink>}
+          {<PeekabooLink href="https://gitee.com/KingSio">gitee</PeekabooLink>}
 
           我热爱开发，设计，创新，享受生活，以及在未知领域中探索。
         </Balancer>}
@@ -110,8 +110,8 @@ export function Headline() {
           platform="bilibili"
         /> */}
         <SocialLink
-          href="https://cali.so/github"
-          aria-label="我的 GitHub"
+          href="https://gitee.com/KingSio"
+          aria-label="我的 gitee"
           platform="github"
         />
         {/* <SocialLink
@@ -120,11 +120,11 @@ export function Headline() {
           platform="telegram"
         /> */}
         <SocialLink href="/feed.xml" platform="rss" aria-label="RSS 订阅" />
-        <SocialLink
+        {/* <SocialLink
           href="mailto:hi@cali.so"
           aria-label="我的邮箱"
           platform="mail"
-        />
+        /> */}
       </motion.div>
     </div>
   )
