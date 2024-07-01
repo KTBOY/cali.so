@@ -1,14 +1,12 @@
 /*
  * @Author: zlc
  * @Date: 2024-07-01 10:36:25
- * @LastEditTime: 2024-07-01 11:02:00
+ * @LastEditTime: 2024-07-01 11:25:02
  * @LastEditors: zlc
  * @Description: css
  * @FilePath: \cali.so\app\(main)\csseffects\page.tsx
  */
-import { type Metadata } from 'next'
 
-import { Projects } from '~/app/(main)/projects/Projects'
 import { Container } from '~/components/ui/Container'
 
 import cssContainer from "./css-container.module.css"
