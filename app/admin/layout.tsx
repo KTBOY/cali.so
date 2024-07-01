@@ -1,3 +1,11 @@
+/*
+ * @Author: zlc
+ * @Date: 2024-03-26 19:40:33
+ * @LastEditTime: 2024-07-01 10:31:31
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\app\admin\layout.tsx
+ */
 import { currentUser } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 
@@ -5,15 +13,18 @@ import { Container } from '~/components/ui/Container'
 
 import { Sidebar } from './Sidebar'
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const user = await currentUser()
-  if (!user || !user.publicMetadata.siteOwner) {
-    redirect('/')
-  }
+  // const user = await currentUser()
+  currentUser().then(() => {
+    if (!user || !user.publicMetadata.siteOwner) {
+      redirect('/')
+    }
+
+  })
 
   return (
     <div>
