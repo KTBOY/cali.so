@@ -37,7 +37,7 @@ function Links() {
     <nav className="flex gap-6 text-sm font-medium text-zinc-800 dark:text-zinc-200">
       {navigationItems.map(({ href, text }) => (
         <NavLink key={href} href={href}>
-          {text}
+          {text}666
         </NavLink>
       ))}
     </nav>

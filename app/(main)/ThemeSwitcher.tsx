@@ -51,6 +51,7 @@ export function ThemeSwitcher() {
             <ThemeIcon className="h-6 w-6 stroke-zinc-500 p-0.5 transition group-hover:stroke-zinc-700 dark:group-hover:stroke-zinc-200" />
           </button>
         </Tooltip.Trigger>
+        
         <AnimatePresence>
           {open && (
             <Tooltip.Portal forceMount>
