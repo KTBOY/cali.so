@@ -23,9 +23,7 @@ import  "./serach.css";
 
 
 export default function SerachPage() {
-  function toggleTheme() {
-    console.log('xxx')
-  }
+
   const handelSearch = (v) => {
     console.log(v);
     console.log('xxx',v.target.value);

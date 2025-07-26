@@ -17,7 +17,7 @@ import {
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
-import SerachPage from '~/app/(main)/serach/page'
+// import SerachPage from '~/app/(main)/serach/page'
 import { NavigationBar } from '~/app/(main)/NavigationBar'
 import { ThemeSwitcher } from '~/app/(main)/ThemeSwitcher'
 
@@ -255,7 +255,7 @@ export function Header() {
                   stiffness: 200,
                 }}
               >
-  
+
                 <AnimatePresence>
                   {!isHomePage && (
                     <motion.div
@@ -283,9 +283,9 @@ export function Header() {
                 <div className="pointer-events-auto">
                   <ThemeSwitcher />
                 </div>
-                 <div className="pointer-events-auto">
-                    <SerachPage></SerachPage>
-                </div>
+                {/* <div className="pointer-events-auto">
+                  <SerachPage></SerachPage>
+                </div> */}
               </motion.div>
               {/* 
               <AnimatePresence>
