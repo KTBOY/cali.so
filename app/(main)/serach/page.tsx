@@ -24,11 +24,11 @@ import  "./serach.css";
 
 export default function SerachPage() {
 
-  const handelSearch = (v) => {
-    console.log(v);
-    console.log('xxx',v.target.value);
+  // const handelSearch = (v) => {
+  //   console.log(v);
+  //   console.log('xxx',v.target.value);
     
-  }
+  // }
   return (
 
     // <Tooltip.Provider disableHoverableContent>
@@ -45,7 +45,7 @@ export default function SerachPage() {
 
     // </Tooltip.Provider>
     <div className="app-main-serach-page">
-      <input type="text" placeholder="请输入游戏名称"  onChange={(e)=>handelSearch(e)} />
+      {/* <input type="text" placeholder="请输入游戏名称"  onChange={(e)=>handelSearch(e)} /> */}
     </div>
   )
 }
