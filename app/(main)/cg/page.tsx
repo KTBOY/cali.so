@@ -9,86 +9,19 @@
 import { Container } from '~/components/ui/Container'
 
 
-const ProjectCard = ({ project }) => {
-  return (
-    <div>
-      {project.name}
-    </div>
-  )
-}
+// const ProjectCard = ({ project }) => {
+//   return (
+//     <div>
+//       {project.name}
+//     </div>
+//   )
+// }
 
 export default function Cg() {
 
 
 
 
-  const gameList = [
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    },
-    ,
-    {
-      name: 'xx'
-    }
-
-
-  ]
   // for (let i = 0; i < 500; i++) {
 
   //   gameList.push({
