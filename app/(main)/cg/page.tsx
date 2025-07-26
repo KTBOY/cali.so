@@ -89,22 +89,22 @@ export default function Cg() {
 
 
   ]
-  for (let i = 0; i < 500; i++) {
+  // for (let i = 0; i < 500; i++) {
 
-    gameList.push({
-      name: i,
-    });
-  }
+  //   gameList.push({
+  //     name: i,
+  //   });
+  // }
   return (
     <Container>
-      <ul
+      {/* <ul
         role="list"
         className="grid grid-cols-1 gap-x-12 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 mt-5"
       >
         {gameList.map((project, index) => (
           <ProjectCard project={project} key={index} />
         ))}
-      </ul>
+      </ul> */}
     </Container>
   )
 }
