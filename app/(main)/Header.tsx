@@ -17,10 +17,8 @@ import {
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
-// import SerachPage from '~/app/(main)/serach/page'
 import { NavigationBar } from '~/app/(main)/NavigationBar'
 import { ThemeSwitcher } from '~/app/(main)/ThemeSwitcher'
-
 import {
   GitHubBrandIcon,
   GoogleBrandIcon,
@@ -243,7 +241,6 @@ export function Header() {
                 'var(--header-inner-position)' as React.CSSProperties['position'],
             }}
           >
-
             <div className="relative flex gap-4">
               <motion.div
                 className="flex flex-1"
@@ -255,7 +252,6 @@ export function Header() {
                   stiffness: 200,
                 }}
               >
-
                 <AnimatePresence>
                   {!isHomePage && (
                     <motion.div
@@ -283,9 +279,6 @@ export function Header() {
                 <div className="pointer-events-auto">
                   <ThemeSwitcher />
                 </div>
-                {/* <div className="pointer-events-auto">
-                  <SerachPage></SerachPage>
-                </div> */}
               </motion.div>
               {/* 
               <AnimatePresence>
@@ -377,6 +370,7 @@ function UserInfo() {
                   </button>
                 </Tooltip.Trigger>
               </SignInButton>
+
               <AnimatePresence>
                 {tooltipOpen && (
                   <Tooltip.Portal forceMount>
