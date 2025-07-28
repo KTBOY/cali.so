@@ -7,8 +7,8 @@
  * @FilePath: \cali.so\config\nav.ts
  */
 export const navigationItems = [
-  { href: '/', text: '个人项目' },
-  //  { href: '/game', text: 'PC' },
+  { href: '/', text: '首页' },
+  { href: '/game', text: 'PC' },
     // { href: '/cg', text: '橙光' },
   // { href: '/projects', text: '项目' },
   // { href: '/guestbook', text: '留言墙' },

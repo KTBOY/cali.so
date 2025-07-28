@@ -31,7 +31,7 @@ import { Tooltip } from '~/components/ui/Tooltip'
 import { url } from '~/lib'
 import { clamp } from '~/lib/math'
 export function Header() {
-  const isHomePage = usePathname() === '/'
+  const isHomePage =false //usePathname() === '/' 以前逻辑是在首页的时候不固定头部
 
   const headerRef = React.useRef<HTMLDivElement>(null)
   const avatarRef = React.useRef<HTMLDivElement>(null)
