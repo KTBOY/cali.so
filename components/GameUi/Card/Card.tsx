@@ -8,10 +8,11 @@
  */
 import "./Card.css"
     
-  export  const CardItem = ({ project }) => {
+export const CardItem = ({ project }) => {
+ const displayName = project.name ? project.name.split('|')[0].trim() : '';
   return (
     <div className="game-ui_card group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
-      {project.name}
+      {displayName||'暂无数据'}
     </div>
   )
 }
