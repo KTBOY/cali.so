@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import { NavigationBar } from '~/app/(main)/NavigationBar'
+import SerachPage from '~/app/(main)/serach/page'
 import { ThemeSwitcher } from '~/app/(main)/ThemeSwitcher'
 import {
   GitHubBrandIcon,
@@ -279,7 +280,13 @@ export function Header() {
                 <div className="pointer-events-auto">
                   <ThemeSwitcher />
                 </div>
+                 <div className="pointer-events-none">
+                     <SerachPage/>
+                </div>
+        
               </motion.div>
+                      
+          
               {/* 
               <AnimatePresence>
                 {!isHomePage && (

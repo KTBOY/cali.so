@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-16 15:36:42
- * @LastEditTime: 2025-08-13 20:01:16
+ * @LastEditTime: 2025-08-25 16:50:09
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\game\page.tsx
@@ -12,12 +12,14 @@ import "./backBtn.css"
 
 import React from 'react'
 
+import { eventBus } from '~/app/(main)/serach/FunctionBus'
 import { CardItem } from '~/components/GameUi/Card/Card'
 import Pagecomponent from '~/components/GameUi/Page/Pagecomponent'
 import { Container } from '~/components/ui/Container'
 
 import { list } from "./data"
 import gameItem from './gameItem.module.css';
+
 
 interface GameList {
   name?: string;
@@ -80,25 +82,77 @@ export default function GamePage() {
 
   const [currenItem, setCount] = React.useState<GameList | undefined>(undefined);
   const [currenList, setList] = React.useState(groupedGameList[0]);
-  const pageConfig = {
-    totalPage: 10
-  }
+  const [currenIndex, setIndex] = React.useState(0);
+  const [pageConfig, setPageConfig] = React.useState({
+    totalPage: 10,
+    currentPage: 1
+  });
+
   const handelClick = (item: GameList) => {
     setCount(item)
   }
 
   const handleBack = () => {
     setCount(undefined)
+    setList(groupedGameList[currenIndex])
   }
 
 
-  const pageIndex = (index) => {
+  const pageIndex = (index: number) => {
     setList(groupedGameList[index])
+    setIndex(index)
+    setPageConfig({
+      ...pageConfig,
+      currentPage: index
+    })
   }
 
-  // React.useEffect(() => { 
-  //   setCount(undefined)
-  // }, [currenItem])
+  const handleSearch = (v: string) => {
+    if (!v) {
+      setList(groupedGameList[currenIndex])
+      return
+    }
+    const searchTerm = v.trim().toLowerCase()
+
+    // 在当前分组的所有数据中搜索，而不仅仅是在当前页面的数据中搜索
+    const allGames = groupedGameList.flat()
+    const filteredData = allGames.filter((item) =>
+      item.name && item.name.toLowerCase().includes(searchTerm)
+    )
+
+    // 将搜索结果重新分组
+    const groupedSearchResults: GameList[][] = [];
+    for (let i = 0; i < filteredData.length; i += 21) {
+      groupedSearchResults.push(filteredData.slice(i, i + 21));
+    }
+
+    // 如果有搜索结果，显示第一页
+    if (groupedSearchResults.length > 0) {
+      setList(groupedSearchResults[0])
+      setIndex(0)
+      setPageConfig({
+        totalPage: groupedSearchResults.length,
+        currentPage: 1
+      })
+    } else {
+      // 如果没有搜索结果，显示空数组
+      setList([])
+      setPageConfig({
+        totalPage: 1,
+        currentPage: 1
+      })
+    }
+
+
+  }
+
+  React.useEffect(() => {
+    eventBus.on('callBFunction', handleSearch);
+    return () => {
+      eventBus.off('callBFunction', handleSearch);
+    };
+  });
+
 
 
   return (

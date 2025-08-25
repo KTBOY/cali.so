@@ -7,6 +7,7 @@ import React from 'react'
 interface PageComponentProps {
     pageConfig: {
         totalPage: number
+        currentPage: number
     }
     pageCallbackFn: (currentPage: number) => void
 }
@@ -33,9 +34,11 @@ class Pagecomponent extends React.Component<PageComponentProps, PageComponentSta
 
     componentDidMount() {
         this.setState({
-            totalPage: this.props.pageConfig.totalPage
+            totalPage: this.props.pageConfig.totalPage,
+            currentPage: this.props.pageConfig.currentPage
         })
-        this.props.pageCallbackFn(this.state.currentPage)
+
+        this.props.pageCallbackFn(this.props.pageConfig.currentPage)
     }
 
     createPage(): JSX.Element[] {

@@ -1,72 +1,24 @@
-/* From Uiverse.io by 0xnihilism */ 
+/* From Uiverse.io by 0xnihilism */
 /* Fancy-ass Input Styling 2.0 */
-.app-main-serach-page  {
-  width: 55%;
-  height: 100%;
+.app-main-serach-page {
+  width: 100%;
+  height: 50px;
+  position: absolute;
+  top: 0px;
+  left: 0;
+  z-index: 1000;
+   pointer-events: auto !important;
 
-    display: none;
-  
-  
 }
-.app-main-serach-page  input{
-  cursor: pointer;
+
+.app-main-serach-page input {
+  /* cursor: pointer; */
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   border: 2px solid #ddd;
   border-radius: 5px;
   padding: 5px;
-  height:100%;
+  height: 100%;
+  width: 100%;
 }
 
 
-
-.app-main-serach-page  input:focus {
-  outline: none;
-  border-color: #ff7f7f;
-  transform: translateY(-3px) scale(1.01);
-}
-
-.app-main-serach-page  input::placeholder {
-  color: #ccc;
-  transition: all 0.3s ease;
-}
-
-.app-main-serach-page  input:focus::placeholder {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-
-
-.app-main-serach-page :hover::after {
-  opacity: 1;
-  right: 1.5rem;
-}
-
-/* New shit */
-.app-main-serach-page  input:hover {
-  background-color: #f9f9f9;
-
-}
-
-@keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  50% {
-    transform: translateX(5px);
-  }
-  75% {
-    transform: translateX(-5px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.inputWrapper  input:invalid {
-  animation: shake 0.5s ease-in-out;
-  border-color: #ff4d4d;
-}
