@@ -1,3 +1,12 @@
+/*
+ * @Author: zlc
+ * @Date: 2025-07-17 20:26:33
+ * @LastEditTime: 2025-09-01 10:54:12
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\app\(main)\page.tsx
+ */
+
 import React from 'react'
 
 import { BlogPosts } from '~/app/(main)/blog/BlogPosts'
@@ -9,9 +18,9 @@ import { PencilSwooshIcon } from '~/assets'
 import { Container } from '~/components/ui/Container'
 import { getSettings } from '~/sanity/queries'
 
+
 export default async function BlogHomePage() {
   const settings = await getSettings()
-
   return (
     <>
       <Container>

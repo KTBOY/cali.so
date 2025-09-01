@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-16 15:36:42
- * @LastEditTime: 2025-08-25 16:50:09
+ * @LastEditTime: 2025-09-01 11:27:16
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\game\page.tsx
@@ -80,24 +80,30 @@ export default function GamePage() {
     groupedGameList.push(list.slice(i, i + 21));
   }
 
+  groupedGameList.unshift([])
+  
+  
   const [currenItem, setCount] = React.useState<GameList | undefined>(undefined);
   const [currenList, setList] = React.useState(groupedGameList[0]);
   const [currenIndex, setIndex] = React.useState(0);
   const [pageConfig, setPageConfig] = React.useState({
-    totalPage: 10,
+    totalPage: groupedGameList.length-1,
     currentPage: 1
   });
 
+  //点击某个游戏
   const handelClick = (item: GameList) => {
     setCount(item)
   }
 
+  // 返回游戏页
   const handleBack = () => {
     setCount(undefined)
     setList(groupedGameList[currenIndex])
   }
 
 
+  // 分页
   const pageIndex = (index: number) => {
     setList(groupedGameList[index])
     setIndex(index)
