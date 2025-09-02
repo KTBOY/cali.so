@@ -31,14 +31,37 @@ import { Container } from '~/components/ui/Container'
 import { Tooltip } from '~/components/ui/Tooltip'
 import { url } from '~/lib'
 import { clamp } from '~/lib/math'
-const test = () => {
- 
-  const hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
-  const s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-
-}
+const loadAnalyticsAndAdsScripts = () => {
+  try {
+    // 加载百度统计脚本
+    const hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
+    hm.async = true;
+    
+    // 加载Google Adsense脚本
+    const hm2 = document.createElement("script");
+    hm2.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456";
+    hm2.crossOrigin = "anonymous";
+    hm2.async = true;
+    
+    // 获取第一个script标签
+    const scripts = document.getElementsByTagName("script");
+    const firstScript = scripts[0];
+    
+    if (firstScript && firstScript.parentNode) {
+      // 插入百度统计脚本
+      firstScript.parentNode.insertBefore(hm, firstScript);
+      // 插入Google Adsense脚本
+      firstScript.parentNode.insertBefore(hm2, firstScript);
+    } else {
+      // 如果没有找到script标签，添加到head中
+      document.head.appendChild(hm);
+      document.head.appendChild(hm2);
+    }
+  } catch (error) {
+    console.warn("Failed to load analytics scripts:", error);
+  }
+};
 export function Header() {
   const isHomePage =false //usePathname() === '/' 以前逻辑是在首页的时候不固定头部
 
@@ -102,7 +125,7 @@ export function Header() {
         setProperty('--header-top', '0px')
         setProperty('--avatar-top', '0px')
       }
-      test()
+      loadAnalyticsAndAdsScripts()
     }
 
     function updateAvatarStyles() {
