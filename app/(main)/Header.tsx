@@ -31,37 +31,59 @@ import { Container } from '~/components/ui/Container'
 import { Tooltip } from '~/components/ui/Tooltip'
 import { url } from '~/lib'
 import { clamp } from '~/lib/math'
-const loadAnalyticsAndAdsScripts = () => {
-  try {
-    // 加载百度统计脚本
-    const hm = document.createElement("script");
-    hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
-    hm.async = true;
+const loadAnalyticsAndAdsScripts = (() => {
+  let loaded = false;
+  
+  return () => {
+    if (loaded) return;
     
-    // 加载Google Adsense脚本
-    const hm2 = document.createElement("script");
-    hm2.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456";
-    hm2.crossOrigin = "anonymous";
-    hm2.async = true;
-    
-    // 获取第一个script标签
-    const scripts = document.getElementsByTagName("script");
-    const firstScript = scripts[0];
-    
-    if (firstScript && firstScript.parentNode) {
-      // 插入百度统计脚本
-      firstScript.parentNode.insertBefore(hm, firstScript);
-      // 插入Google Adsense脚本
-      firstScript.parentNode.insertBefore(hm2, firstScript);
-    } else {
-      // 如果没有找到script标签，添加到head中
-      document.head.appendChild(hm);
-      document.head.appendChild(hm2);
+    try {
+      // 检查是否已经存在百度统计脚本
+      const existingHmScript = document.querySelector('script[src^="https://hm.baidu.com/hm.js"]');
+      // 检查是否已经存在Google Adsense脚本
+      const existingAdsScript = document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
+      
+      // 加载百度统计脚本
+      if (!existingHmScript) {
+        const hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
+        hm.async = true;
+        
+        // 获取第一个script标签
+        const scripts = document.getElementsByTagName("script");
+        const firstScript = scripts[0];
+        
+        if (firstScript && firstScript.parentNode) {
+          firstScript.parentNode.insertBefore(hm, firstScript);
+        } else {
+          document.head.appendChild(hm);
+        }
+      }
+      
+      // 加载Google Adsense脚本
+      if (!existingAdsScript) {
+        const hm2 = document.createElement("script");
+        hm2.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456";
+        hm2.crossOrigin = "anonymous";
+        hm2.async = true;
+        
+        // 获取第一个script标签
+        const scripts = document.getElementsByTagName("script");
+        const firstScript = scripts[0];
+        
+        if (firstScript && firstScript.parentNode) {
+          firstScript.parentNode.insertBefore(hm2, firstScript);
+        } else {
+          document.head.appendChild(hm2);
+        }
+      }
+      
+      loaded = true;
+    } catch (error) {
+      console.warn("Failed to load analytics scripts:", error);
     }
-  } catch (error) {
-    console.warn("Failed to load analytics scripts:", error);
-  }
-};
+  };
+})();
 export function Header() {
   const isHomePage =false //usePathname() === '/' 以前逻辑是在首页的时候不固定头部
 
