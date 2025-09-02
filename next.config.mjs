@@ -77,6 +77,16 @@ const nextConfig = {
       },
     ]
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'monetag', value: '35d66961a57d58e78789d15addb59f74' },
+        ],
+      },
+    ];
+  },
 }
 
 export default nextConfig
