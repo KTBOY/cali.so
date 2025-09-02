@@ -42,14 +42,23 @@ const loadAnalyticsAndAdsScripts = (() => {
       const existingHmScript = document.querySelector('script[src^="https://hm.baidu.com/hm.js"]');
       // 检查是否已经存在Google Adsense脚本
       const existingAdsScript = document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
-      
+      // 检查是否已经存在monetag meta标签
+      const existingMeta = document.querySelector('meta[name="monetag"][content="35d66961a57d58e78789d15addb59f74"]');
+
+      // 只有在meta标签不存在时才创建
+      if (!existingMeta) {
+        const meta = document.createElement('meta');
+        meta.setAttribute('name', 'monetag');
+        meta.setAttribute('content', '35d66961a57d58e78789d15addb59f74');
+        document.head.appendChild(meta);
+      }
+
       // 加载百度统计脚本
       if (!existingHmScript) {
         const hm = document.createElement("script");
         hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
         hm.async = true;
         
-        // 获取第一个script标签
         const scripts = document.getElementsByTagName("script");
         const firstScript = scripts[0];
         
@@ -67,7 +76,6 @@ const loadAnalyticsAndAdsScripts = (() => {
         hm2.crossOrigin = "anonymous";
         hm2.async = true;
         
-        // 获取第一个script标签
         const scripts = document.getElementsByTagName("script");
         const firstScript = scripts[0];
         

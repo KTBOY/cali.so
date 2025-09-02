@@ -1,3 +1,11 @@
+/*
+ * @Author: zlc
+ * @Date: 2025-07-14 18:02:38
+ * @LastEditTime: 2025-09-02 17:32:34
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\app\layout.tsx
+ */
 import './globals.css'
 import './clerk.css'
 import './prism.css'
@@ -30,6 +38,7 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+    
   },
   openGraph: {
     title: {
@@ -49,6 +58,8 @@ export const metadata: Metadata = {
     title: seo.title,
     description: seo.description,
   },
+
+
   alternates: {
     canonical: url('/'),
     types: {
