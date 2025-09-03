@@ -56,10 +56,10 @@ const loadAnalyticsAndAdsScripts = (() => {
 
       // 只有在meta标签不存在时才创建
       if (!existingMeta) {
-        const meta = document.createElement('meta');
-        meta.setAttribute('name', 'monetag');
-        meta.setAttribute('content', '929d3c7f9226acb670afa716b47884d1');
-        document.head.appendChild(meta);
+       // const meta = document.createElement('meta');
+       // meta.setAttribute('name', 'monetag');
+       // meta.setAttribute('content', '929d3c7f9226acb670afa716b47884d1');
+        //document.head.appendChild(meta);
       }
 
       // 加载百度统计脚本
@@ -377,6 +377,7 @@ export function Header() {
             </div>
           </Container>
         </div>
+        <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta>
       </motion.header>
       {isHomePage && <div className="h-[--content-offset]" />}
     </>

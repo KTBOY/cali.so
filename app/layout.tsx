@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-09-02 17:32:34
+ * @LastEditTime: 2025-09-03 16:26:48
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\layout.tsx
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     default: seo.title,
   },
   description: seo.description,
-  keywords: 'Cali,Cali Castle,郭晓楠,佐玩,创始人,CEO,开发者,设计师,细节控,创新',
+  keywords: 'Cali,Cali Castle,steam,单机游戏,美女,创新',
   manifest: '/site.webmanifest',
   robots: {
     index: true,
@@ -87,6 +87,7 @@ export default function RootLayout({
         className={`${sansFont.variable} m-0 h-full p-0 font-sans antialiased`}
         suppressHydrationWarning
       >
+
         <body className="flex h-full flex-col">
           <ThemeProvider
             attribute="class"
