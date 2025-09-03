@@ -1,3 +1,11 @@
+/*
+ * @Author: zlc
+ * @Date: 2025-07-14 18:02:38
+ * @LastEditTime: 2025-09-03 15:47:58
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\app\(main)\Header.tsx
+ */
 'use client'
 
 import {
@@ -43,13 +51,14 @@ const loadAnalyticsAndAdsScripts = (() => {
       // 检查是否已经存在Google Adsense脚本
       const existingAdsScript = document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
       // 检查是否已经存在monetag meta标签
-      const existingMeta = document.querySelector('meta[name="monetag"][content="35d66961a57d58e78789d15addb59f74"]');
+      const existingMeta = document.querySelector('meta[name="monetag"][content="929d3c7f9226acb670afa716b47884d1"]');
+      // <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta>
 
       // 只有在meta标签不存在时才创建
       if (!existingMeta) {
         const meta = document.createElement('meta');
         meta.setAttribute('name', 'monetag');
-        meta.setAttribute('content', '35d66961a57d58e78789d15addb59f74');
+        meta.setAttribute('content', '929d3c7f9226acb670afa716b47884d1');
         document.head.appendChild(meta);
       }
 
