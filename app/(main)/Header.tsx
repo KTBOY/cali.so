@@ -44,12 +44,13 @@ const loadAnalyticsAndAdsScripts = (() => {
   
   return () => {
     if (loaded) return;
-    
+    // <script async="async" data-cfasync="false" src="//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js"></script>
     try {
       // 检查是否已经存在百度统计脚本
       const existingHmScript = document.querySelector('script[src^="https://hm.baidu.com/hm.js"]');
       // 检查是否已经存在Google Adsense脚本
-      const existingAdsScript = document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
+     // const existingAdsScript = document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
+      const existingAdsScript2 = document.querySelector('script[src^="//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js"]');
       // 检查是否已经存在monetag meta标签
       const existingMeta = document.querySelector('meta[name="monetag"][content="929d3c7f9226acb670afa716b47884d1"]');
       // <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta>
@@ -67,7 +68,6 @@ const loadAnalyticsAndAdsScripts = (() => {
         const hm = document.createElement("script");
         hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
         hm.async = true;
-        
         const scripts = document.getElementsByTagName("script");
         const firstScript = scripts[0];
         
@@ -78,10 +78,10 @@ const loadAnalyticsAndAdsScripts = (() => {
         }
       }
       
-      // 加载Google Adsense脚本
-      if (!existingAdsScript) {
+      // 加载 Adsense脚本
+      if (!existingAdsScript2) {
         const hm2 = document.createElement("script");
-        hm2.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456";
+        hm2.src = "//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js";
         hm2.crossOrigin = "anonymous";
         hm2.async = true;
         
