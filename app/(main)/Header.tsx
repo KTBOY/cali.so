@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-09-09 09:54:00
+ * @LastEditTime: 2025-09-15 19:13:56
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\Header.tsx
@@ -379,6 +379,7 @@ export function Header() {
         </div>
         <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta>
         <meta name="google-adsense-account" content="ca-pub-8512812906555915"></meta>
+        <meta name="pushsdk" content="3501d13a2789f9d3af2562edaf1d04b8"></meta>
       </motion.header>
       {isHomePage && <div className="h-[--content-offset]" />}
     </>
