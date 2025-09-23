@@ -1,3 +1,11 @@
+/*
+ * @Author: zlc
+ * @Date: 2025-07-28 19:34:46
+ * @LastEditTime: 2025-09-23 10:56:01
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\app\(main)\blog\BlogPosts.tsx
+ */
 import { kvKeys } from '~/config/kv'
 import { env } from '~/env.mjs'
 import { redis } from '~/lib/redis'
@@ -18,6 +26,7 @@ export async function BlogPosts({ limit = 5 }) {
       views = await redis.mget<number[]>(...postIdKeys)
     }
   }
+
 
   // let views: number[] = []
   // let posts: BlogPost[] = []
