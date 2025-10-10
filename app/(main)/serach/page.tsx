@@ -30,7 +30,7 @@ export default function SerachPage() {
 
   const toggleTheme = () => {
     const obj = location.href.lastIndexOf("/");
-    if (location.href.substring(obj) != '/game') {
+    if (location.href.substring(obj) != '/game' && location.href.substring(obj) != '/cg') {
       window.location.href = '/game'
     }
     setTimeout(() => {

@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-16 15:36:42
- * @LastEditTime: 2025-10-10 10:48:04
+ * @LastEditTime: 2025-10-10 11:21:06
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\components\GameUi\GameItem\GameItem.tsx
@@ -79,7 +79,7 @@ export default function GamePage({ list }: { list: GameList[] }) {
   const listLength = list.filter(item => item.name)
   for (let i = 0; i < listLength.length; i += 21) {
 
-    groupedGameList.push(list.slice(i, i + 21));
+    groupedGameList.push(listLength.slice(i, i + 21));
 
   }
 
@@ -89,7 +89,7 @@ export default function GamePage({ list }: { list: GameList[] }) {
 
   const [currenItem, setCount] = React.useState<GameList | undefined>(undefined);
   const [currenList, setList] = React.useState(groupedGameList[0]);
-  const [currenIndex, setIndex] = React.useState(0);
+  const [currenIndex, setIndex] = React.useState(1);
   const [pageConfig, setPageConfig] = React.useState({
     totalPage: groupedGameList.length - 1,
     currentPage: 1
@@ -103,7 +103,17 @@ export default function GamePage({ list }: { list: GameList[] }) {
   // 返回游戏页
   const handleBack = () => {
     setCount(undefined)
-    setList(groupedGameList[currenIndex])
+
+    setList(groupedGameList[1])
+    setPageConfig({
+      ...pageConfig,
+      currentPage: 1,
+      totalPage: groupedGameList.length - 1
+
+    })
+
+    console.log(groupedGameList[1]);
+      console.log(groupedGameList);
   }
 
 

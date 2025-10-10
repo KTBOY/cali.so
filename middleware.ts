@@ -76,6 +76,6 @@ export default authMiddleware({
     '/feed',
     '/ama',
     '/game(.*)',
-    '/cgi(.*)'
+    '/cg(.*)'
   ],
 })
