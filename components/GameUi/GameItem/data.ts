@@ -3287,11 +3287,6 @@ export const listPhone = [
   },
 ]
 export const listCg = [
-  { name: 'https://pan.quark.cn/s/2698b3d4137c' },
-  {},
-  {},
-  {},
-  { name: '游戏名称', urlK: '夸克网盘（点击可打开跳转）' },
   {},
   {
     name: '女神自救攻略演员线完结',

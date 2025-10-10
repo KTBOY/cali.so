@@ -1,3 +1,11 @@
+/*
+ * @Author: zlc
+ * @Date: 2025-07-14 18:02:38
+ * @LastEditTime: 2025-10-10 10:37:21
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\middleware.ts
+ */
 import { authMiddleware } from '@clerk/nextjs'
 import { get } from '@vercel/edge-config'
 import { type NextRequest, NextResponse } from 'next/server'
@@ -67,6 +75,7 @@ export default authMiddleware({
     '/rss',
     '/feed',
     '/ama',
-    '/game',
+    '/game(.*)',
+    '/cgi(.*)'
   ],
 })

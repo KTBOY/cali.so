@@ -9,7 +9,7 @@
 export const navigationItems = [
   { href: '/', text: '首页' },
   { href: '/game', text: '电脑游戏' },
-    // { href: '/cg', text: '橙光' },
+  { href: '/cg', text: '橙光游戏' },
   // { href: '/projects', text: '项目' },
   // { href: '/guestbook', text: '留言墙' },
   // { href: '/ama', text: 'AMA 咨询' },

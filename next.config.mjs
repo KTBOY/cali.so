@@ -1,3 +1,11 @@
+/*
+ * @Author: zlc
+ * @Date: 2025-09-02 19:47:20
+ * @LastEditTime: 2025-10-09 17:15:43
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\next.config.mjs
+ */
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
  * This is especially useful for Docker builds.
@@ -77,16 +85,7 @@ const nextConfig = {
       },
     ]
   },
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          { key: 'monetag', value: '35d66961a57d58e78789d15addb59f74' },
-        ],
-      },
-    ];
-  },
+
 }
 
 export default nextConfig
