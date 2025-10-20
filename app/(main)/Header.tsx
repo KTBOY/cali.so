@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-10-09 17:00:09
+ * @LastEditTime: 2025-10-20 15:59:47
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\Header.tsx
@@ -57,12 +57,11 @@ const loadAnalyticsAndAdsScripts = (() => {
       // 检查是否已经存在百度统计脚本
       const existingHmScript = document.querySelector('script[src^="https://hm.baidu.com/hm.js"]');
       // 检查是否已经存在Google Adsense脚本
-     // const existingAdsScript = document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
-      const existingAdsScript2 = document.querySelector('script[src^="//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js"]');
+
+      const existingAdsScript2 = document.querySelector('script[src^="https://cdn.ampproject.org/v0/amp-ad-0.1.js"]');
       // 检查是否已经存在monetag meta标签
       const existingMeta = document.querySelector('meta[name="monetag"][content="929d3c7f9226acb670afa716b47884d1"]');
-      // <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta>
-
+     
       // 只有在meta标签不存在时才创建
       if (!existingMeta) {
        // const meta = document.createElement('meta');
@@ -89,8 +88,8 @@ const loadAnalyticsAndAdsScripts = (() => {
       // 加载 Adsense脚本
       if (!existingAdsScript2) {
         const hm2 = document.createElement("script");
-        hm2.src = "//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js";
-        hm2.crossOrigin = "anonymous";
+        hm2.src = "https://cdn.ampproject.org/v0/amp-ad-0.1.js";
+        hm2.customElement = "amp-ad";
         hm2.async = true;
         
         const scripts = document.getElementsByTagName("script");
@@ -386,8 +385,10 @@ export function Header() {
           </Container>
         </div>
         {/* <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta> */}
-        <meta name="google-adsense-account" content="ca-pub-8512812906555915"></meta>
+        {/* <meta name="google-adsense-account" content="ca-pub-8512812906555915"></meta> */}
         {/* <meta name="pushsdk" content="3501d13a2789f9d3af2562edaf1d04b8"></meta> */}
+         <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+
       </motion.header>
       {isHomePage && <div className="h-[--content-offset]" />}
     </>
