@@ -87,19 +87,19 @@ const loadAnalyticsAndAdsScripts = (() => {
       
       // 加载 Adsense脚本
       if (!existingAdsScript2) {
-        const hm2 = document.createElement("script");
-        hm2.src = "https://cdn.ampproject.org/v0/amp-ad-0.1.js";
-        hm2.customElement = "amp-ad";
-        hm2.async = true;
+        // const hm2 = document.createElement("script");
+        // hm2.src = "https://cdn.ampproject.org/v0/amp-ad-0.1.js";
+        // // hm2.customElement = "amp-ad";
+        // hm2.async = true;
         
-        const scripts = document.getElementsByTagName("script");
-        const firstScript = scripts[0];
+        // const scripts = document.getElementsByTagName("script");
+        // const firstScript = scripts[0];
         
-        if (firstScript && firstScript.parentNode) {
-          firstScript.parentNode.insertBefore(hm2, firstScript);
-        } else {
-          document.head.appendChild(hm2);
-        }
+        // if (firstScript && firstScript.parentNode) {
+        //   firstScript.parentNode.insertBefore(hm2, firstScript);
+        // } else {
+        //   document.head.appendChild(hm2);
+        // }
       }
       
       loaded = true;
