@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-10-20 15:59:47
+ * @LastEditTime: 2025-10-21 14:25:50
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\Header.tsx
@@ -387,7 +387,8 @@ export function Header() {
         {/* <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta> */}
         {/* <meta name="google-adsense-account" content="ca-pub-8512812906555915"></meta> */}
         {/* <meta name="pushsdk" content="3501d13a2789f9d3af2562edaf1d04b8"></meta> */}
-         <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8512812906555915"
+     crossOrigin="anonymous"></script>
 
       </motion.header>
       {isHomePage && <div className="h-[--content-offset]" />}

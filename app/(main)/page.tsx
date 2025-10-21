@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-17 20:26:33
- * @LastEditTime: 2025-10-21 10:14:45
+ * @LastEditTime: 2025-10-21 14:42:49
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\page.tsx
@@ -48,16 +48,7 @@ export default async function BlogHomePage() {
           <div className="mt-6 grid grid-cols-1 justify-center gap-6 md:grid-cols-[repeat(auto-fit,75%)] lg:grid-cols-[repeat(auto-fit,45%)] lg:gap-8">
             {<BlogPosts />}
             {/* <div id="container-1e191f62a88d88bb29c51ea9d39ac0d7"></div> */}
-            {/* <amp-ad width="100vw" height="320"
-              type="adsense"
-              data-ad-client="ca-pub-8512812906555915"
-              data-ad-slot="2392600980"
-              data-auto-format="rspv"
-              data-full-width="">
-              <div ></div>
-            </amp-ad>
-            adTest={process.env.NODE_ENV === 'development' ? 'on' : 'off'}
-            */}
+
             <GoogleAds/>
           </div>
           <aside className="space-y-10 lg:sticky lg:top-8 lg:h-fit lg:pl-16 xl:pl-20" style={{ 'display': 'none' }} >
