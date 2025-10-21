@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-17 20:26:33
- * @LastEditTime: 2025-10-20 17:11:56
+ * @LastEditTime: 2025-10-21 10:14:45
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\page.tsx
@@ -15,8 +15,10 @@ import { Newsletter } from '~/app/(main)/Newsletter'
 // import { Photos } from '~/app/(main)/Photos'
 import { Resume } from '~/app/(main)/Resume'
 import { PencilSwooshIcon } from '~/assets'
+import { GoogleAds } from '~/components/GooleAds/Home'
 import { Container } from '~/components/ui/Container'
 import { getSettings } from '~/sanity/queries'
+
 
 
 export default async function BlogHomePage() {
@@ -53,7 +55,10 @@ export default async function BlogHomePage() {
               data-auto-format="rspv"
               data-full-width="">
               <div ></div>
-            </amp-ad> */}
+            </amp-ad>
+            adTest={process.env.NODE_ENV === 'development' ? 'on' : 'off'}
+            */}
+            <GoogleAds/>
           </div>
           <aside className="space-y-10 lg:sticky lg:top-8 lg:h-fit lg:pl-16 xl:pl-20" style={{ 'display': 'none' }} >
             <Newsletter />
