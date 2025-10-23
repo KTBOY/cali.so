@@ -7,6 +7,7 @@
  * @FilePath: \cali.so\app\(main)\page.tsx
  */
 
+import dynamic from 'next/dynamic'
 import React from 'react'
 
 import { BlogPosts } from '~/app/(main)/blog/BlogPosts'
@@ -15,7 +16,8 @@ import { Newsletter } from '~/app/(main)/Newsletter'
 // import { Photos } from '~/app/(main)/Photos'
 import { Resume } from '~/app/(main)/Resume'
 import { PencilSwooshIcon } from '~/assets'
-import { GoogleAds } from '~/components/GooleAds/Home'
+
+const GoogleAds = dynamic(() => import('~/components/GooleAds/Home'), { ssr: false });
 import { Container } from '~/components/ui/Container'
 import { getSettings } from '~/sanity/queries'
 
@@ -49,7 +51,7 @@ export default async function BlogHomePage() {
             {<BlogPosts />}
             {/* <div id="container-1e191f62a88d88bb29c51ea9d39ac0d7"></div> */}
 
-            <GoogleAds/>
+          <GoogleAds client="ca-pub-8512812906555915" slot="2392600980" responsive />
           </div>
           <aside className="space-y-10 lg:sticky lg:top-8 lg:h-fit lg:pl-16 xl:pl-20" style={{ 'display': 'none' }} >
             <Newsletter />

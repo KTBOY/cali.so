@@ -44,3 +44,66 @@ pnpm build
 
 - 2024-03-13: **v2.0** 更新了 Sanity 到最新版，Next.js 到 v14.1，提取了首页图片和工作经历到 Sanity 设置里。
 - 2024-03-10: **v1.1** 从 PlanetScale 数据库迁移到了 [Neon](https://neon.tech/) 数据库（MySQL -> PostgreSQL），因为 PlanetScale [宣布不再支持免费数据库](https://planetscale.com/blog/planetscale-forever)。
+
+
+
+广告支持
+npm install --save react-ssr-adsense
+react接入google广告: 支持服务端渲染
+原创:react01/18/2021发布pv：1uv：0ip：0twitter #react
+原文地址：https://www.douyacun.com/article/43284034aeede40846638a36caa18592
+https://www.douyacun.com/article/43284034aeede40846638a36caa18592
+@hustcc react-adsense 不支持服务端渲染框架，受 react-adsense 启发写了 react-ssr-adsense
+
+/*
+ * @Author: zlc
+ * @Date: 2025-10-21 10:17:02
+ * @LastEditTime: 2025-10-22 19:51:11
+ * @LastEditors: zlc
+ * @Description: 
+ * @FilePath: \cali.so\components\GooleAds\Home.tsx
+ */
+
+'use client'
+import React from 'react';
+import AdSense from 'react-ssr-adsense';
+
+// 扩展 window 接口类型
+declare global {
+  interface Window {
+    adsbygoogle: Array<unknown>;
+  }
+}
+export const GoogleAds = () => {
+  React.useEffect(() => {
+    window.adsbygoogle = window.adsbygoogle || []
+  }, []);
+
+  return (
+    // <div>
+    //   <ins className="adsbygoogle"
+    //     style={{display: 'block'}}
+    //     data-ad-client="ca-pub-8512812906555915"
+    //     data-ad-slot="2392600980"
+    //     data-ad-format="auto"
+    //     data-full-width-responsive="true"></ins>
+    // </div>
+    <AdSense
+      client='ca-pub-8512812906555915'
+      slot='2392600980'
+      style={{ display: 'block' }}
+      layout='in-article'
+      format='fluid'
+    />
+    // auto full width responsive ads 自动全屏广告
+    /* <AdSense
+      client='ca-pub-7292810486004926'
+      slot='7806394673'
+      style={{ display: 'block' }}
+      format='auto'
+      responsive='true'
+      layoutKey='-gw-1+2a-9x+5c'
+    /> */
+
+  )
+};

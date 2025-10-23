@@ -1,35 +1,62 @@
-/*
- * @Author: zlc
- * @Date: 2025-10-21 10:17:02
- * @LastEditTime: 2025-10-21 14:36:43
- * @LastEditors: zlc
- * @Description: 
- * @FilePath: \cali.so\components\GooleAds\Home.tsx
- */
-
 'use client'
+// components/AdSense.tsx
+import React, { useEffect, useRef } from 'react';
 
-import React from 'react';
-
-// 扩展 window 接口类型
+// 扩展Window接口
 declare global {
   interface Window {
-    adsbygoogle: Array<unknown>;
+    adsbygoogle: unknown[];
   }
 }
-export const GoogleAds = () => {
-  React.useEffect(() => {
-    window.adsbygoogle = window.adsbygoogle || []
+
+interface AdSenseProps {
+  client: string;
+  slot: string;
+  style?: React.CSSProperties;
+  format?: string;
+  responsive?: boolean;
+  layout?: string;
+  layoutKey?: string;
+  className?: string;
+}
+
+const AdSense: React.FC<AdSenseProps> = ({
+  client,
+  slot,
+  style = { display: 'block' },
+  format = 'auto',
+  responsive = false,
+  layout = '',
+  layoutKey = '',
+  className = '',
+}) => {
+  const adRef = useRef<HTMLModElement>(null); // 修改此处类型
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!initializedRef.current && adRef.current) {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        initializedRef.current = true;
+      } catch (err) {
+        console.log(err);
+      }
+    }
   }, []);
 
   return (
-    <div>
-      <ins className="adsbygoogle"
-        style={{display: 'block'}}
-        data-ad-client="ca-pub-8512812906555915"
-        data-ad-slot="2392600980"
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
-    </div>
-  )
+    <ins
+      ref={adRef}
+      className={`adsbygoogle ${className}`.trim()}
+      style={style}
+      data-ad-client={client}
+      data-ad-slot={slot}
+      data-ad-format={format}
+      data-full-width-responsive={responsive ? 'true' : 'false'}
+      data-ad-layout={layout}
+      data-ad-layout-key={layoutKey}
+    />
+  );
 };
+
+export default AdSense;
