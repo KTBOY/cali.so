@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-16 15:36:42
- * @LastEditTime: 2025-10-27 20:03:40
+ * @LastEditTime: 2025-10-29 19:03:22
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\components\GameUi\GameItem\GameItem.tsx
@@ -79,7 +79,7 @@ const GameItem = ({ item }) => {
      data-ad-client="ca-pub-8512812906555915"
      data-ad-slot="2240543774"></ins> */}
  
-   <GoogleAds format="fluid" layout="in-article" client="ca-pub-8512812906555915" slot="2240543774" responsive />
+   <GoogleAds format="fluid" layout="in-article" client="ca-pub-8512812906555915" slot="4025264708" responsive />
     </div>
   )
 }
