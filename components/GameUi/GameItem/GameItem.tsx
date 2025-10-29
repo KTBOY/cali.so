@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-16 15:36:42
- * @LastEditTime: 2025-10-10 11:21:06
+ * @LastEditTime: 2025-10-27 20:03:40
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\components\GameUi\GameItem\GameItem.tsx
@@ -10,6 +10,7 @@
 import "./serach.css"
 import "./backBtn.css"
 
+import dynamic from 'next/dynamic'
 import React from 'react'
 
 import { eventBus } from '~/app/(main)/serach/FunctionBus'
@@ -20,6 +21,7 @@ import { Container } from '~/components/ui/Container'
 // import { list } from "./data"
 import gameItem from './gameItem.module.css';
 
+const GoogleAds = dynamic(() => import('~/components/GooleAds/Home'), { ssr: false });
 
 interface GameList {
   name?: string;
@@ -68,6 +70,16 @@ const GameItem = ({ item }) => {
 
         {item.urlK ? (<div>夸克：<a className={gameItem.aHref} href={item.urlK}>{item.urlK}</a></div>) : ''}
       </div>
+
+{/* 
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-8512812906555915"
+     data-ad-slot="2240543774"></ins> */}
+ 
+   <GoogleAds format="fluid" layout="in-article" client="ca-pub-8512812906555915" slot="2240543774" responsive />
     </div>
   )
 }
