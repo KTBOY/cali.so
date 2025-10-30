@@ -1,11 +1,12 @@
 /*
  * @Author: zlc
- * @Date: 2025-07-16 15:36:42
- * @LastEditTime: 2025-10-29 19:03:22
+ * @Date: 2025-10-09 18:22:28
+ * @LastEditTime: 2025-10-30 18:54:18
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\components\GameUi\GameItem\GameItem.tsx
  */
+
 'use client'
 import "./serach.css"
 import "./backBtn.css"
@@ -71,15 +72,17 @@ const GameItem = ({ item }) => {
         {item.urlK ? (<div>夸克：<a className={gameItem.aHref} href={item.urlK}>{item.urlK}</a></div>) : ''}
       </div>
 
-{/* 
+      {/* 
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
      data-ad-format="fluid"
      data-ad-client="ca-pub-8512812906555915"
      data-ad-slot="2240543774"></ins> */}
- 
-   <GoogleAds format="fluid" layout="in-article" client="ca-pub-8512812906555915" slot="4025264708" responsive />
+
+      <div className="mt-2">
+        <GoogleAds format="fluid" layout="in-article" client="ca-pub-8512812906555915" slot="4025264708" responsive />
+      </div>
     </div>
   )
 }
@@ -124,8 +127,7 @@ export default function GamePage({ list }: { list: GameList[] }) {
 
     })
 
-    console.log(groupedGameList[1]);
-      console.log(groupedGameList);
+
   }
 
 
@@ -204,9 +206,11 @@ export default function GamePage({ list }: { list: GameList[] }) {
               {currenList
                 .filter((item) => item.name) // 过滤掉没有名称的项目
                 .map((item, index) => (
-                  <li key={index} onClick={() => handelClick(item)}>
-                    <CardItem project={item} />
-                  </li>
+                  item.name && (item?.urlK || item?.urlB) ?
+                    <li key={index} onClick={() => handelClick(item)}>
+                      <CardItem project={item} />
+                    </li>
+                    : null
                 ))}
             </ul>
             <Pagecomponent pageConfig={pageConfig} pageCallbackFn={pageIndex} />
