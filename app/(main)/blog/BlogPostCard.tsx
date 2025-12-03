@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   CalendarIcon,
   CursorClickIcon,
-  //HourglassIcon,
+  HourglassIcon,
   ScriptIcon,
 } from '~/assets'
 import { prettifyNumber } from '~/lib/math'
@@ -67,10 +67,10 @@ export function BlogPostCard({ post, views }: { post: Post; views: number }) {
               <span>{prettifyNumber(views, true)}</span>
             </span>
 
-            {/* <span className="inline-flex items-center space-x-1">
+            { <span className="inline-flex items-center space-x-1" style="display: none;">
               <HourglassIcon />
               <span>{readingTime.toFixed(0)}分钟阅读</span>
-            </span> */}
+            </span>}
           </span>
         </span>
       </span>
