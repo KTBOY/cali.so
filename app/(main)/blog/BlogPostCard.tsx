@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   CalendarIcon,
   CursorClickIcon,
-  HourglassIcon,
+  //HourglassIcon,
   ScriptIcon,
 } from '~/assets'
 import { prettifyNumber } from '~/lib/math'
