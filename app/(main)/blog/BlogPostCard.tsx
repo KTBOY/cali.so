@@ -67,7 +67,7 @@ export function BlogPostCard({ post, views }: { post: Post; views: number }) {
               <span>{prettifyNumber(views, true)}</span>
             </span>
 
-            { <span className="inline-flex items-center space-x-1" style="display: none;">
+            { <span className="inline-flex items-center space-x-1" style={{ 'display': 'none' }} >
               <HourglassIcon />
               <span>{readingTime.toFixed(0)}分钟阅读</span>
             </span>}
