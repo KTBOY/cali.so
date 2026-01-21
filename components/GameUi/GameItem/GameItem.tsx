@@ -55,6 +55,8 @@ const BackButton = ({ back }) => {
 };
 
 const GameItem = ({ item }) => {
+  console.log(gameItem);
+  console.log(item);
   return (
     <div className={gameItem.box}>
       <div className={gameItem.itemTitle}>{item.name}</div>
@@ -63,7 +65,7 @@ const GameItem = ({ item }) => {
           (
             <div className="mt-2 mb-2">
               <div>百度</div>
-              <div><a className={gameItem.aHref} href={item.urlB}> {item.urlB}</a></div>
+              <div><a className={gameItem.aHref} href={item.urlB.split('\n')[0]||item.urlB} target="_blank" rel="noopener noreferrer"> {item.urlB}</a></div>
               <div>解压密码：{item.passWord}</div>
 
             </div>
