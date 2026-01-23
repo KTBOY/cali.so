@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-10-21 14:25:50
+ * @LastEditTime: 2026-01-23 14:33:45
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\app\(main)\Header.tsx
@@ -49,7 +49,7 @@ import { url } from '~/lib'
 import { clamp } from '~/lib/math'
 const loadAnalyticsAndAdsScripts = (() => {
   let loaded = false;
-  
+
   return () => {
     if (loaded) return;
     // <script async="async" data-cfasync="false" src="//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js"></script>
@@ -61,12 +61,12 @@ const loadAnalyticsAndAdsScripts = (() => {
       const existingAdsScript2 = document.querySelector('script[src^="https://cdn.ampproject.org/v0/amp-ad-0.1.js"]');
       // 检查是否已经存在monetag meta标签
       const existingMeta = document.querySelector('meta[name="monetag"][content="929d3c7f9226acb670afa716b47884d1"]');
-     
+
       // 只有在meta标签不存在时才创建
       if (!existingMeta) {
-       // const meta = document.createElement('meta');
-       // meta.setAttribute('name', 'monetag');
-       // meta.setAttribute('content', '929d3c7f9226acb670afa716b47884d1');
+        // const meta = document.createElement('meta');
+        // meta.setAttribute('name', 'monetag');
+        // meta.setAttribute('content', '929d3c7f9226acb670afa716b47884d1');
         //document.head.appendChild(meta);
       }
 
@@ -77,31 +77,31 @@ const loadAnalyticsAndAdsScripts = (() => {
         hm.async = true;
         const scripts = document.getElementsByTagName("script");
         const firstScript = scripts[0];
-        
+
         if (firstScript && firstScript.parentNode) {
           firstScript.parentNode.insertBefore(hm, firstScript);
         } else {
           document.head.appendChild(hm);
         }
       }
-      
+
       // 加载 Adsense脚本
       if (!existingAdsScript2) {
         // const hm2 = document.createElement("script");
         // hm2.src = "https://cdn.ampproject.org/v0/amp-ad-0.1.js";
         // // hm2.customElement = "amp-ad";
         // hm2.async = true;
-        
+
         // const scripts = document.getElementsByTagName("script");
         // const firstScript = scripts[0];
-        
+
         // if (firstScript && firstScript.parentNode) {
         //   firstScript.parentNode.insertBefore(hm2, firstScript);
         // } else {
         //   document.head.appendChild(hm2);
         // }
       }
-      
+
       loaded = true;
     } catch (error) {
       console.warn("Failed to load analytics scripts:", error);
@@ -109,7 +109,7 @@ const loadAnalyticsAndAdsScripts = (() => {
   };
 })();
 export function Header() {
-  const isHomePage =false //usePathname() === '/' 以前逻辑是在首页的时候不固定头部
+  const isHomePage = false //usePathname() === '/' 以前逻辑是在首页的时候不固定头部
 
   const headerRef = React.useRef<HTMLDivElement>(null)
   const avatarRef = React.useRef<HTMLDivElement>(null)
@@ -345,7 +345,7 @@ export function Header() {
                   )}
                 </AnimatePresence>
               </motion.div>
-              <div className="flex flex-1 justify-end md:justify-center">
+              <div className="flex flex-1 justify-end md:justify-center" >
                 <NavigationBar.Mobile className="pointer-events-auto relative z-50 md:hidden" />
                 <NavigationBar.Desktop className="pointer-events-auto relative z-50 hidden md:block" />
               </div>
@@ -358,13 +358,13 @@ export function Header() {
                 <div className="pointer-events-auto">
                   <ThemeSwitcher />
                 </div>
-                 <div className="pointer-events-none">
-                     <SerachPage/>
+                <div className="pointer-events-none">
+                  <SerachPage />
                 </div>
-        
+
               </motion.div>
-                      
-          
+
+
               {/* 
               <AnimatePresence>
                 {!isHomePage && (
@@ -387,8 +387,8 @@ export function Header() {
         {/* <meta name="monetag" content="929d3c7f9226acb670afa716b47884d1"></meta> */}
         {/* <meta name="google-adsense-account" content="ca-pub-8512812906555915"></meta> */}
         {/* <meta name="pushsdk" content="3501d13a2789f9d3af2562edaf1d04b8"></meta> */}
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8512812906555915"
-     crossOrigin="anonymous"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8512812906555915"
+          crossOrigin="anonymous"></script>
 
       </motion.header>
       {isHomePage && <div className="h-[--content-offset]" />}
@@ -418,9 +418,12 @@ function UserInfo() {
     }
   }, [user?.primaryEmailAddress?.verification.strategy])
 
+  return
+
   return (
-    <AnimatePresence>
-      <SignedIn key="user-info">
+
+    <AnimatePresence >
+      <SignedIn key="user-info" >
         <motion.div
           className="pointer-events-auto relative flex h-10 items-center"
           initial={{ opacity: 0, x: 25 }}

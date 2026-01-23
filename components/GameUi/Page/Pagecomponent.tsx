@@ -51,7 +51,7 @@ class Pagecomponent extends React.Component<PageComponentProps, PageComponentSta
                 onClick={this.prePageHandeler.bind(this)}
                 key={0}
             >
-                上一页
+               上
             </li>
         )
 
@@ -124,7 +124,7 @@ class Pagecomponent extends React.Component<PageComponentProps, PageComponentSta
                 onClick={this.nextPageHandeler.bind(this)}
                 key={totalPage + 1}
             >
-                下一页
+                下
             </li>
         )
 

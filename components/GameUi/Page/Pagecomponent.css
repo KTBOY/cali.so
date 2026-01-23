@@ -16,12 +16,13 @@
 .page-container li {
     list-style: none;
     float: left;
-    padding: 0px 8px;
+    padding: 0px 10px;
     cursor: pointer;
     border: 1px solid #ccc;
     height: 28px;
     line-height: 28px;
     margin-right: 8px;
+    border-radius: 5px;
 }
 
 .page-container li:last-child {

@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-10-09 18:22:28
- * @LastEditTime: 2025-10-30 18:54:18
+ * @LastEditTime: 2026-01-23 14:36:41
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\components\GameUi\GameItem\GameItem.tsx
@@ -203,7 +203,7 @@ export default function GamePage({ list }: { list: GameList[] }) {
           <>
             <ul
               role="list"
-              className="grid grid-cols-1 gap-x-12 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 mt-5"
+              className="grid grid-cols-1 gap-x-12 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 mt-5"
             >
               {currenList
                 .filter((item) => item.name) // 过滤掉没有名称的项目
