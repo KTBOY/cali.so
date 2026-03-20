@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-10-09 18:22:28
- * @LastEditTime: 2026-01-23 14:36:41
+ * @LastEditTime: 2026-03-20 14:49:29
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\components\GameUi\GameItem\GameItem.tsx
@@ -83,7 +83,7 @@ const GameItem = ({ item }) => {
      data-ad-slot="2240543774"></ins> */}
 
       <div className="mt-2">
-        <GoogleAds format="fluid" layout="in-article" client="ca-pub-8512812906555915" slot="4025264708" responsive />
+        <GoogleAds  layout="in-article" client="ca-pub-8512812906555915" slot="4025264708" responsive />
       </div>
     </div>
   )

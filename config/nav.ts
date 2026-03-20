@@ -1,15 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-17 20:28:13
- * @LastEditTime: 2025-10-10 11:04:26
- * @LastEditors: zlc
- * @Description: 
- * @FilePath: \cali.so\config\nav.ts
- */
-/*
- * @Author: zlc
- * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-08-25 17:19:31
+ * @LastEditTime: 2026-03-20 14:58:51
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\config\nav.ts
