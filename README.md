@@ -107,3 +107,35 @@ export const GoogleAds = () => {
 
   )
 };
+## Bubblewrap Android 打包
+
+项目已经加入 Bubblewrap 所需基础配置：
+
+- `twa-manifest.json`
+- `public/site.webmanifest`
+- `public/sw.js`
+- `public/.well-known/assetlinks.json`
+
+使用步骤：
+
+```bash
+# 1) 先确保线上可访问（示例域名）
+https://www.ps520.asia/site.webmanifest
+https://www.ps520.asia/sw.js
+
+# 2) 初始化/更新 TWA 工程
+pnpm twa:init
+pnpm twa:update
+
+# 3) 本地环境检查
+pnpm twa:doctor
+
+# 4) 构建 APK/AAB
+pnpm twa:build
+```
+
+首次发布前请完成：
+
+1. 生成并配置 `android.keystore`（`twa-manifest.json` 中 `signingKey.path`）。
+2. 将正式签名证书的 SHA256 指纹填入 `public/.well-known/assetlinks.json`。
+3. 确认 `packageId`、`host`、`webManifestUrl` 与线上站点一致。

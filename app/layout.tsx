@@ -12,6 +12,7 @@ import './prism.css'
 
 import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 
 import { ThemeProvider } from '~/app/(main)/ThemeProvider'
 import { url } from '~/lib'
@@ -97,6 +98,17 @@ export default function RootLayout({
           >
             {children}
           </ThemeProvider>
+          <Script id="register-sw" strategy="afterInteractive">
+            {`
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                  navigator.serviceWorker.register('/sw.js').catch(function (error) {
+                    console.error('Service Worker registration failed:', error)
+                  })
+                })
+              }
+            `}
+          </Script>
         </body>
       </html>
     </ClerkProvider>

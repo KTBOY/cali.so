@@ -10,7 +10,12 @@
     "dev:email": "email dev -p 3333",
     "dev:turbo": "next dev --turbo",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "twa:init": "npx @bubblewrap/cli@latest init --manifest https://www.ps520.asia/site.webmanifest",
+    "twa:doctor": "npx @bubblewrap/cli@latest doctor",
+    "twa:update": "npx @bubblewrap/cli@latest update",
+    "twa:build": "npx @bubblewrap/cli@latest build",
+    "twa:install": "npx @bubblewrap/cli@latest install"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.9",

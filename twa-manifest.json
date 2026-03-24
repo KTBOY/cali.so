@@ -1,0 +1,33 @@
+{
+  "packageId": "asia.ps520.app",
+  "host": "www.ps520.asia",
+  "name": "Cali Castle",
+  "launcherName": "Cali",
+  "display": "standalone",
+  "themeColor": "#ffffff",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#ffffff",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://www.ps520.asia/android-chrome-512x512.png",
+  "maskableIconUrl": "https://www.ps520.asia/android-chrome-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://www.ps520.asia/site.webmanifest",
+  "fallbackType": "customtabs",
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "features": {
+    "playBilling": {
+      "enabled": false
+    }
+  }
+}
