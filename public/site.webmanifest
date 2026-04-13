@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Cali Castle",
+  "name": "Shu ke",
   "short_name": "Cali",
-  "description": "Cali Castle personal site",
+  "description": "Shu ke personal site",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

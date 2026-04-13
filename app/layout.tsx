@@ -23,11 +23,11 @@ import { seo } from '~/lib/seo'
 export const metadata: Metadata = {
   metadataBase: seo.url,
   title: {
-    template: '%s | Cali Castle',
+    template: '%s | Shu ke',
     default: seo.title,
   },
   description: seo.description,
-  keywords: 'Cali,Cali Castle,steam,单机游戏,美女,创新',
+  keywords: 'shuke,steam,单机游戏,美女,创新',
   manifest: '/site.webmanifest',
   robots: {
     index: true,
@@ -44,10 +44,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: {
       default: seo.title,
-      template: '%s | Cali Castle',
+      template: '%s | Shu ke',
     },
     description: seo.description,
-    siteName: 'Cali Castle',
+    siteName: 'Shu ke',
     locale: 'zh_CN',
     type: 'website',
     url: 'https://cali.so',

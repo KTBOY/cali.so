@@ -1,7 +1,7 @@
 /*
  * @Author: zlc
  * @Date: 2025-07-14 18:02:38
- * @LastEditTime: 2025-10-10 10:37:21
+ * @LastEditTime: 2026-03-27 15:04:01
  * @LastEditors: zlc
  * @Description: 
  * @FilePath: \cali.so\middleware.ts
@@ -76,6 +76,7 @@ export default authMiddleware({
     '/feed',
     '/ama',
     '/game(.*)',
-    '/cg(.*)'
+    '/cg(.*)',
+    '/bz(.*)'
   ],
 })

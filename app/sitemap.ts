@@ -29,6 +29,7 @@ export default async function sitemap() {
       url: url('/cg').href,
       lastModified: new Date(),
     },
+
   ] satisfies MetadataRoute.Sitemap
 
   const slugs = await getAllLatestBlogPostSlugs()

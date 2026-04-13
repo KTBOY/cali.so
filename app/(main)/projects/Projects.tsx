@@ -1,9 +1,9 @@
 import { ProjectCard } from '~/app/(main)/projects/ProjectCard'
+import { env } from '~/env.mjs'
 import { getSettings } from '~/sanity/queries'
-
 export async function Projects() {
-  const projects = (await getSettings())?.projects || []
 
+  const projects = env.VERCEL_ENV === 'development' ? [] : (await getSettings())?.projects
   return (
     <ul
       role="list"
