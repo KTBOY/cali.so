@@ -16,6 +16,7 @@ import { Newsletter } from '~/app/(main)/Newsletter'
 // import { Photos } from '~/app/(main)/Photos'
 import { Resume } from '~/app/(main)/Resume'
 import { PencilSwooshIcon } from '~/assets'
+import { DomainAnnouncementDialog } from '~/components/DomainAnnouncementDialog'
 
 const GoogleAds = dynamic(() => import('~/components/GooleAds/Home'), { ssr: false });
 import { Container } from '~/components/ui/Container'
@@ -27,6 +28,7 @@ export default async function BlogHomePage() {
   const settings = await getSettings()
   return (
     <>
+      <DomainAnnouncementDialog />
       <Container>
         {/* { <Headline /> }mt-6 grid grid-cols-1 justify-center gap-6 md:grid-cols-[repeat(auto-fit,75%)] lg:grid-cols-[repeat(auto-fit,45%)] lg:gap-8 */}
       </Container>
