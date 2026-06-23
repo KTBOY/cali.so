@@ -59,7 +59,7 @@ export function DomainAnnouncementDialog() {
     try {
       // @ts-expect-error - 旧版 Firefox 支持
       if (window.sidebar && typeof window.sidebar.addPanel === 'function') {
-        // @ts-expect-error
+        // @ts-expect-error - 旧版 Firefox 支持
         window.sidebar.addPanel(NEW_DOMAIN_TITLE, NEW_DOMAIN, '')
         return
       }
