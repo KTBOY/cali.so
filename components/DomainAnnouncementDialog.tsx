@@ -57,9 +57,9 @@ export function DomainAnnouncementDialog() {
     const hotkey = isMac ? '⌘ + D' : 'Ctrl + D'
 
     try {
-      // @ts-ignore - 旧版 Firefox 支持
+      // @ts-expect-error - 旧版 Firefox 支持
       if (window.sidebar && typeof window.sidebar.addPanel === 'function') {
-        // @ts-ignore
+        // @ts-expect-error
         window.sidebar.addPanel(NEW_DOMAIN_TITLE, NEW_DOMAIN, '')
         return
       }
