@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/Button'
 import { Dialog } from '~/components/ui/Dialog'
 
 const STORAGE_KEY = 'domain-announcement-ps521-shown'
-const NEW_DOMAIN = 'https://www.ps521.asia/'
+const NEW_DOMAIN = 'https://www.ps521.asia'
 const NEW_DOMAIN_ICON = 'http://localhost:3000'
 const NEW_DOMAIN_TITLE = 'PS521 - 珊瑚打码'
 
@@ -78,7 +78,7 @@ export function DomainAnnouncementDialog() {
 
   return (
     <Dialog.Root open={open} onOpenChange={(v) => !v && handleClose()}>
-      <Dialog.Content className="sm:max-w-md">
+      <Dialog.Content className="sm:max-w-md bg-zinc-50">
         {/* 头部：图标 + 标题 */}
         <Dialog.Header>
           <div className="flex items-center gap-2">
