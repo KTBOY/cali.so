@@ -1,0 +1,104 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: main
+nodes_managed: true
+exported_at: "2026-07-17T10:49:39Z"
+modules:
+    "":
+        dir_name: cali.so 个人站点 Next.js 应用
+        title: cali.so 个人站点 Next.js 应用
+        scope:
+            - README.md
+            - .eslintrc.cjs
+            - .gitignore
+            - .prettierignore
+            - 3501d13a2789f9d3af2562edaf1d04b8.html
+            - drizzle.config.ts
+            - env.mjs
+            - middleware.ts
+            - next-sitemap.config.js
+            - next.config.mjs
+            - package.json
+            - pnpm-lock.yaml
+            - pnpm-workspace.yaml
+            - postcss.config.cjs
+            - prettier.config.cjs
+            - sanity.cli.ts
+            - sanity.config.ts
+            - tailwind.config.cjs
+            - twa-manifest.json
+            - vercel.json
+            - .env
+            - test2
+            - tsconfig.json
+            - turbo.json
+            - 账户
+        source_files: []
+        children:
+            - config_and_lib
+            - database
+            - emails
+            - sanity_cms
+            - shared_components
+        depends_on: []
+        related_to: []
+    config_and_lib:
+        dir_name: 应用配置与通用工具库
+        title: 应用配置与通用工具库
+        scope:
+            - config/
+            - lib/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: database
+            - path: emails
+            - path: sanity_cms
+            - path: shared_components
+    database:
+        dir_name: 数据库访问层与数据模型
+        title: 数据库访问层与数据模型
+        scope:
+            - db/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: config_and_lib
+            - path: emails
+    emails:
+        dir_name: React Email 邮件模板库
+        title: React Email 邮件模板库
+        scope:
+            - emails/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: config_and_lib
+            - path: database
+    sanity_cms:
+        dir_name: Sanity 内容管理系统集成
+        title: Sanity 内容管理系统集成
+        scope:
+            - sanity/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: config_and_lib
+            - path: shared_components
+    shared_components:
+        dir_name: 共享 UI 组件与图标资源
+        title: 共享 UI 组件与图标资源
+        scope:
+            - components/
+            - assets/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: config_and_lib
+            - path: sanity_cms

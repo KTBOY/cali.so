@@ -1,0 +1,32 @@
+schema_version: 1
+module_path: ""
+title: cali.so 个人站点 Next.js 应用
+scope:
+    - README.md
+    - .eslintrc.cjs
+    - .gitignore
+    - .prettierignore
+    - 3501d13a2789f9d3af2562edaf1d04b8.html
+    - drizzle.config.ts
+    - env.mjs
+    - middleware.ts
+    - next-sitemap.config.js
+    - next.config.mjs
+    - package.json
+    - pnpm-lock.yaml
+    - pnpm-workspace.yaml
+    - postcss.config.cjs
+    - prettier.config.cjs
+    - sanity.cli.ts
+    - sanity.config.ts
+    - tailwind.config.cjs
+    - twa-manifest.json
+    - vercel.json
+    - .env
+    - test2
+    - tsconfig.json
+    - turbo.json
+    - 账户
+source_files: []
+depends_on: []
+related_to: []

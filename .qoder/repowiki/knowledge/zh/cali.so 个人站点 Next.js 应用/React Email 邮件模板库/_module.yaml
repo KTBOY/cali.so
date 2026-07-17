@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: emails
+title: React Email 邮件模板库
+scope:
+    - emails/
+source_files: []
+depends_on: []
+related_to:
+    - path: config_and_lib
+    - path: database
