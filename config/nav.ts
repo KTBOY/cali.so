@@ -8,8 +8,10 @@
  */
 export const navigationItems = [
   { href: '/', text: '首页' },
+  { href: '/game-center', text: '游戏中心' },
   { href: '/game', text: '电脑游戏' },
   { href: '/cg', text: '橙光游戏' },
+  { href: '/tools', text: '工具库' },
   //  { href: '/bz', text: '壁纸' },
   { href: '/projects', text: '项目' },
   // { href: '/guestbook', text: '留言墙' },

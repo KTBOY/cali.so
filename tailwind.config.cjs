@@ -375,6 +375,34 @@ module.exports = {
 
       animation: {
         typing: 'typing-pulse 1.35s steps(1, end) infinite',
+        'gradient-x': 'gradient-x 6s ease infinite',
+        'glow-pulse': 'glow-pulse 2.4s ease-in-out infinite',
+        float: 'float 5s ease-in-out infinite',
+        shimmer: 'shimmer 2.2s linear infinite',
+        'scan-line': 'scan-line 3.5s linear infinite',
+      },
+
+      keyframes: {
+        'gradient-x': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '1' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'scan-line': {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100%)' },
+        },
       },
 
       boxShadow: {

@@ -18,6 +18,7 @@
     "twa:install": "npx @bubblewrap/cli@latest install"
   },
   "dependencies": {
+    "@ruffle-rs/ruffle": "^0.3.0",
     "@clerk/nextjs": "^4.29.9",
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
