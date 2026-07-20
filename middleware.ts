@@ -77,6 +77,7 @@ export default authMiddleware({
     '/ama',
     '/game(.*)',
     '/cg(.*)',
-    '/bz(.*)'
+    '/bz(.*)',
+    '/tools(.*)'
   ],
 })
