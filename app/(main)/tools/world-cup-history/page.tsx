@@ -1,78 +1,129 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
+import React from 'react'
 
-import { WorldCupHistory } from '~/app/(main)/tools/world-cup-history/WorldCupHistory'
-import { Container } from '~/components/ui/Container'
+import { DataBar, Scoreline, SectionHeading, Stat, StatGrid, TeamChip, WcShell } from './_components/ui'
+import { getMeta, getTournamentsIndex } from './_lib/data'
+import { WC_BASE } from './_lib/nav'
 
-const title = '世界杯历史 · 工具库'
+const title = '世界杯历史'
 const description =
-  '历届 FIFA 世界杯决赛档案馆：以官方转播风格呈现每一届冠军之战的首发阵容、比分进球与球员评分。'
+  '男足 FIFA 世界杯历史数据库（1930–2022）：22 届赛事、964 场比赛、2720 粒进球的编辑型档案。'
 
 export const metadata = {
   title,
   description,
-  openGraph: {
-    title,
-    description,
-  },
-  twitter: {
-    title,
-    description,
-    card: 'summary_large_image',
-  },
+  openGraph: { title, description },
+  twitter: { title, description, card: 'summary_large_image' },
 } satisfies Metadata
 
-export default function WorldCupHistoryPage() {
+export default function WorldCupHomePage() {
+  const meta = getMeta()
+  const tournaments = getTournamentsIndex()
+  const maxTitles = meta.mostTitles[0]?.titles ?? 1
+
   return (
-    <Container className="mt-16 sm:mt-32">
-      {/* 面包屑 */}
-      <nav className="mb-8 flex items-center gap-2 text-sm font-light text-zinc-400">
-        <Link
-          href="/tools"
-          className="transition-colors hover:text-zinc-600 dark:hover:text-zinc-200"
-        >
-          工具库
-        </Link>
-        <span className="text-zinc-300 dark:text-zinc-600">/</span>
-        <span className="text-zinc-600 dark:text-zinc-300">世界杯历史</span>
-      </nav>
-
-      {/* 页面标题 · FIFA 官方风格头图 */}
-      <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 px-6 py-14 shadow-2xl sm:px-12 sm:py-16">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-sky-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 64px)',
-          }}
-        />
-
-        <div className="relative">
-          <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.3em] text-sky-300/80">
-            <span className="text-base">🏆</span>
-            WORLD CUP FINALS ARCHIVE
-          </p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">
-            世界杯历史
-          </h1>
-          <p className="mt-6 max-w-2xl text-base font-light leading-loose text-white/60">
-            重温历届 FIFA 世界杯决赛的巅峰对决。选择年份，即可查看两支球队的
-            <b className="font-medium text-white/90"> 首发阵型</b>、
-            <b className="font-medium text-white/90"> 比分进球</b> 与
-            <b className="font-medium text-white/90"> 球员评分</b>。
-          </p>
-          <p className="mt-3 text-xs font-light text-white/35">
-            比分、进球与首发阵容为历史事实；球员评分为编辑综合评分（满分 10），仅供参考。
-          </p>
-        </div>
+    <WcShell>
+      {/* Hero */}
+      <header>
+        <p className="text-xs font-normal tracking-[0.3em] text-neutral-400">
+          FIFA WORLD CUP · 1930–2022
+        </p>
+        <h1 className="mt-3 font-serif text-5xl font-normal tracking-tight text-neutral-900 dark:text-neutral-100">
+          世界杯历史
+        </h1>
+        <p className="mt-5 text-sm font-light leading-loose text-neutral-600 dark:text-neutral-400">
+          一座关于男足世界杯的安静档案馆。自 1930 年乌拉圭至 2022
+          年卡塔尔，22 届赛事的每一场比赛、每一粒进球、每一次夺冠，
+          都以数据的方式被收拢在这里——不喧哗，只陈列。
+        </p>
       </header>
 
-      {/* 工具主体 */}
-      <div className="mt-10">
-        <WorldCupHistory />
+      {/* 关键数据 */}
+      <div className="mt-8">
+        <StatGrid>
+          <Stat label="届" value={meta.totals.tournaments} />
+          <Stat label="场比赛" value={meta.totals.matches} />
+          <Stat label="粒进球" value={meta.totals.goals} />
+          <Stat label="支参赛队" value={meta.totals.teams} />
+        </StatGrid>
       </div>
-    </Container>
+
+      {/* 最悬殊比分 */}
+      <SectionHeading note="按净胜球">最悬殊的比分</SectionHeading>
+      <div>
+        {meta.biggestMargin.map((m) => (
+          <Scoreline
+            key={m.matchId}
+            home={m.home}
+            away={m.away}
+            href={`${WC_BASE}/tournaments/${m.year}`}
+            meta={
+              <>
+                {m.year} · {m.stageZh} · 净胜 {m.margin} 球
+              </>
+            }
+          />
+        ))}
+      </div>
+
+      {/* 单场进球最多 */}
+      <SectionHeading note="主客双方合计">单场进球最多</SectionHeading>
+      <div>
+        {meta.mostGoals.map((m) => (
+          <Scoreline
+            key={m.matchId}
+            home={m.home}
+            away={m.away}
+            href={`${WC_BASE}/tournaments/${m.year}`}
+            meta={
+              <>
+                {m.year} · {m.stageZh} · 合计 {m.total} 球
+              </>
+            }
+          />
+        ))}
+      </div>
+
+      {/* 夺冠次数 */}
+      <SectionHeading note="历届冠军">谁举起过大力神杯</SectionHeading>
+      <div className="space-y-2.5">
+        {meta.mostTitles.map((t) => (
+          <DataBar
+            key={t.teamId}
+            label={t.nameZh}
+            value={t.titles}
+            max={maxTitles}
+            suffix=" 次"
+          />
+        ))}
+      </div>
+
+      {/* 22 届网格 */}
+      <SectionHeading note={`${meta.totals.tournaments} 届`}>
+        历届一览
+      </SectionHeading>
+      <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+        {tournaments.map((t) => (
+          <Link
+            key={t.year}
+            href={`${WC_BASE}/tournaments/${t.year}`}
+            className="group rounded-xl border border-neutral-200 bg-neutral-50 p-3 transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
+          >
+            <div className="font-serif text-2xl font-normal tabular-nums text-neutral-900 dark:text-neutral-100">
+              {t.year}
+            </div>
+            <div className="mt-2 text-[11px] text-neutral-400">冠军</div>
+            {t.winner ? (
+              <div className="mt-0.5">
+                <TeamChip team={t.winner} />
+              </div>
+            ) : (
+              <div className="mt-0.5 text-sm text-neutral-400">—</div>
+            )}
+          </Link>
+        ))}
+      </div>
+    </WcShell>
   )
 }

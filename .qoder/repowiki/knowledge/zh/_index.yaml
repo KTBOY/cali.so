@@ -3,11 +3,11 @@ schema_version: 1
 locale: zh-CN
 branch: main
 nodes_managed: true
-exported_at: "2026-07-21T06:10:54Z"
+exported_at: "2026-07-21T07:06:10Z"
 modules:
     "":
-        dir_name: cali.so 个人站点 Next.js 应用
-        title: cali.so 个人站点 Next.js 应用
+        dir_name: Next.js 博客站点根工程
+        title: Next.js 博客站点根工程
         scope:
             - README.md
             - .eslintrc.cjs
@@ -53,10 +53,7 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: database
             - path: emails
-            - path: sanity_cms
-            - path: shared_components
     database:
         dir_name: 数据库访问层与数据模型
         title: 数据库访问层与数据模型
@@ -66,7 +63,6 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: config_and_lib
             - path: emails
     emails:
         dir_name: React Email 邮件模板库
@@ -88,11 +84,10 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: config_and_lib
             - path: shared_components
     shared_components:
-        dir_name: 共享 UI 组件与图标资源
-        title: 共享 UI 组件与图标资源
+        dir_name: 共享 UI 组件与静态资源库
+        title: 共享 UI 组件与静态资源库
         scope:
             - components/
             - assets/
@@ -100,5 +95,4 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: config_and_lib
             - path: sanity_cms

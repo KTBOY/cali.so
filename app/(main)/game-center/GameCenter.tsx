@@ -5,8 +5,8 @@ import React, { useCallback, useState } from 'react'
 
 import { type SwfGame, swfGames } from '~/components/GameUi/swfGames'
 
-const RufflePlayer = dynamic(
-  () => import('~/components/GameUi/RufflePlayer'),
+const FlashPlayer = dynamic(
+  () => import('~/components/GameUi/FlashPlayer'),
   { ssr: false }
 )
 
@@ -63,7 +63,7 @@ export function GameCenter() {
           <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-fuchsia-500 opacity-60 blur transition-opacity duration-500 group-hover:opacity-90" />
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
             <div className="aspect-[4/3] w-full bg-black">
-              <RufflePlayer
+              <FlashPlayer
                 swfUrl={selectedGame.file}
                 title={selectedGame.name}
               />
@@ -90,7 +90,7 @@ export function GameCenter() {
             </span>
           </div>
           <p className="mt-5 text-xs text-zinc-500">
-            提示：游戏由 Ruffle 模拟器驱动，如遇到兼容性问题请尝试刷新页面。
+            提示：如遇到兼容性问题请尝试刷新页面。
           </p>
         </div>
       </div>

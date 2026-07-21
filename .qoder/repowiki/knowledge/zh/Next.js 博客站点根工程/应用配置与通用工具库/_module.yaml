@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: config_and_lib
+title: 应用配置与通用工具库
+scope:
+    - config/
+    - lib/
+source_files: []
+depends_on: []
+related_to:
+    - path: emails

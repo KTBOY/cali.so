@@ -5,7 +5,7 @@ import { Container } from '~/components/ui/Container'
 
 const title = '游戏中心'
 const description =
-  '在线畅玩经典 Flash 游戏！基于 Ruffle 模拟器，无需安装 Flash Player 即可在浏览器中运行 SWF 游戏。'
+  '在线畅玩经典 Flash 游戏！无需安装任何插件，打开浏览器即可在线畅玩。'
 
 export const metadata = {
   title,
@@ -56,9 +56,8 @@ export default function GameCenterPage() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-zinc-400">
-            在线畅玩经典 <b className="text-emerald-300">Flash</b> 游戏！基于{' '}
-            <b className="text-cyan-300">Ruffle</b> 模拟器，无需安装 Flash
-            Player 即可在浏览器中运行 SWF 游戏。选择下方游戏开始游玩吧。
+            在线畅玩经典 <b className="text-emerald-300">Flash</b>{' '}
+            游戏！无需安装任何插件，打开浏览器即可畅玩。选择下方游戏开始游玩吧。
           </p>
         </header>
 

@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: shared_components
+title: 共享 UI 组件与静态资源库
+scope:
+    - components/
+    - assets/
+source_files: []
+depends_on: []
+related_to:
+    - path: sanity_cms

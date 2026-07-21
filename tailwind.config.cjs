@@ -371,6 +371,7 @@ module.exports = {
 
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
+        serif: ['Georgia', 'Songti SC', 'STSong', ...fontFamily.serif],
       },
 
       animation: {

@@ -27,6 +27,10 @@ const nextConfig = {
 
   experimental: {
     taint: true,
+    // 将非 public 目录的 SWF 文件打包进 /g/[key] 路由的 Serverless Function
+    outputFileTracingIncludes: {
+      '/g/[key]': ['./swf-data/**/*'],
+    },
   },
 
   redirects() {

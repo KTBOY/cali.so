@@ -34,7 +34,7 @@ export const tools: ToolItem[] = [
     name: '世界杯历史',
     nameJa: 'ワールドカップ',
     description:
-      '历届世界杯决赛档案馆：FIFA 官方风格呈现每一届冠军之战的首发阵容、比分进球与球员评分。',
+      '男足世界杯历史数据库（1930–2022）：22 届赛事、964 场比赛、2720 粒进球的编辑型档案，逐届可查赛程、小组积分、射手与奖项。',
     available: true,
     accent: 'sky',
   },
