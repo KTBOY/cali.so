@@ -1,8 +1,8 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 
-import { accentStyles, tools } from '~/config/tools'
 import { Container } from '~/components/ui/Container'
+import { accentStyles, tools } from '~/config/tools'
 
 const title = '工具库'
 const description =

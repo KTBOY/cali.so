@@ -26,7 +26,6 @@ const config = {
   },
   ignorePatterns: ['**/*.md'],
   plugins: [
-    'turbo',
     '@typescript-eslint',
     'simple-import-sort',
     'unused-imports',

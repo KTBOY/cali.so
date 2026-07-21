@@ -71,7 +71,7 @@ function loadRuffleScript(): Promise<void> {
     }
 
     // 在脚本加载前配置：禁用 polyfill 自动扫描
-    ;(window as Record<string, unknown>).RufflePlayer = {
+    window.RufflePlayer = {
       config: {
         polyfills: [],
         autostart: false,
