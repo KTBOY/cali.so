@@ -54,8 +54,8 @@ const loadAnalyticsAndAdsScripts = (() => {
     if (loaded) return;
     // <script async="async" data-cfasync="false" src="//pl27598088.revenuecpmgate.com/1e191f62a88d88bb29c51ea9d39ac0d7/invoke.js"></script>
     try {
-      // 检查是否已经存在百度统计脚本
-      const existingHmScript = document.querySelector('script[src^="https://hm.baidu.com/hm.js"]');
+      // 检查是否已经存在百度统计脚本（已禁用）
+      // const existingHmScript = document.querySelector('script[src^="https://hm.baidu.com/hm.js"]');
       // 检查是否已经存在Google Adsense脚本
 
       const existingAdsScript2 = document.querySelector('script[src^="https://cdn.ampproject.org/v0/amp-ad-0.1.js"]');
@@ -70,20 +70,20 @@ const loadAnalyticsAndAdsScripts = (() => {
         //document.head.appendChild(meta);
       }
 
-      // 加载百度统计脚本
-      if (!existingHmScript) {
-        const hm = document.createElement("script");
-        hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
-        hm.async = true;
-        const scripts = document.getElementsByTagName("script");
-        const firstScript = scripts[0];
-
-        if (firstScript && firstScript.parentNode) {
-          firstScript.parentNode.insertBefore(hm, firstScript);
-        } else {
-          document.head.appendChild(hm);
-        }
-      }
+      // 加载百度统计脚本（已禁用）
+      // if (!existingHmScript) {
+      //   const hm = document.createElement("script");
+      //   hm.src = "https://hm.baidu.com/hm.js?e99bf834dfc5326b13609826e93a9d21";
+      //   hm.async = true;
+      //   const scripts = document.getElementsByTagName("script");
+      //   const firstScript = scripts[0];
+      //
+      //   if (firstScript && firstScript.parentNode) {
+      //     firstScript.parentNode.insertBefore(hm, firstScript);
+      //   } else {
+      //     document.head.appendChild(hm);
+      //   }
+      // }
 
       // 加载 Adsense脚本
       if (!existingAdsScript2) {
