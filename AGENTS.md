@@ -60,6 +60,64 @@ env.mjs              # 环境变量校验（server/client 分区）
 middleware.ts        # Clerk 鉴权 + IP 封禁 + 访客地理
 ```
 
+## 路由总览
+
+### 前台页面（`app/(main)/`）
+
+| 路由 | 说明 |
+|------|------|
+| `/` | 首页（近期游戏列表） |
+| `/blog` · `/blog/[slug]` | 博客列表 / 文章详情（Sanity） |
+| `/projects` | 项目展示 |
+| `/game-center` | 游戏中心（SWF/Ruffle） |
+| `/tools` | 工具库首页 |
+| `/tools/gif-compress` | GIF 压缩工具 |
+| `/tools/swf-to-exe` | SWF 转 EXE 工具 |
+| `/tools/world-cup-history` | 世界杯历史（含子路由 tournaments/[year]、teams/[slug]、matches/[matchId]、players/[playerId]、awards、h2h、hosts、officials、stadiums、about） |
+| `/game` · `/cg` | 电脑游戏 / 橙光游戏（已从菜单隐藏，URL 仍可访问） |
+| `/guestbook` | 留言墙 |
+| `/ama` | AMA 咨询 |
+| `/about` | 关于 |
+| `/newsletters/[id]` | Newsletter 阅读页 |
+| `/confirm/[token]` | 订阅确认 |
+| `/serach` | 搜索页（目录名拼写就是 serach，勿"修正"） |
+| `/sign-in` · `/sign-up` | Clerk 登录/注册（`(auth)` 路由组） |
+| `/feed.xml` | RSS（`/rss`、`/feed`、`/rss.xml` 通过 rewrites 指向它） |
+| `/blocked` | IP 被封禁提示页（middleware rewrite） |
+
+### 后台管理（`app/admin/`，需 Clerk 登录 + `publicMetadata.siteOwner`）
+
+| 路由 | 说明 |
+|------|------|
+| `/admin` | 仪表盘（数据概览） |
+| `/admin/comments` | 评论管理 |
+| `/admin/newsletters` · `/admin/newsletters/new` | Newsletter 列表 / 新建 |
+| `/admin/subscribers` | 订阅者管理 |
+
+### 内容管理
+
+| 路由 | 说明 |
+|------|------|
+| `/studio` | 内嵌 Sanity Studio（博客/项目/设置等 CMS 内容编辑，`[[...index]]` 可选 catch-all） |
+
+### API（`app/api/`，Route Handlers）
+
+| 路由 | 说明 |
+|------|------|
+| `/api/activity` | 动态/活跃信息 |
+| `/api/comments/[id]` | 文章评论 CRUD |
+| `/api/guestbook` | 留言墙 |
+| `/api/newsletter` | 订阅 |
+| `/api/reactions` | 文章表情反应 |
+| `/api/favicon` | 站点图标抽取（route.tsx） |
+| `/api/link-preview` | 链接预览（route.tsx） |
+| `/api/tweet/[id]` | 推文数据 |
+
+### 路由相关约定
+
+- 新增前台页面：在 `config/nav.ts` 注册菜单（隐藏项用注释保留）；公开页面需加入 `middleware.ts` 的 `publicRoutes`，否则被 Clerk 拦截
+- 重定向（/twitter、/github 等社交短链）和 rewrites 统一在 `next.config.mjs` 配置
+
 ## 代码约定
 
 - **路径别名**：`~/*` 映射到项目根（如 `~/components/ui/Container`、`~/config/nav`）。禁用相对路径 `../../`，统一用 `~`。

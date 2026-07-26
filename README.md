@@ -21,6 +21,58 @@ Cali 的个人博客网站 [https://cali.so/](https://cali.so/) 的源代码。
 - [React Email](https://react.email)
 - [Resend](https://resend.com/)
 
+### 路由总览
+
+> 更详细的目录结构与开发约定见 [AGENTS.md](./AGENTS.md)
+
+#### 前台页面（`app/(main)/`）
+
+| 路由 | 说明 |
+|------|------|
+| `/` | 首页（近期游戏列表） |
+| `/blog` · `/blog/[slug]` | 博客列表 / 文章详情（Sanity） |
+| `/projects` | 项目展示 |
+| `/game-center` | 游戏中心（SWF/Ruffle 模拟器） |
+| `/tools` | 工具库（GIF 压缩、SWF 转 EXE、世界杯历史等） |
+| `/game` · `/cg` | 电脑游戏 / 橙光游戏（已从菜单隐藏，URL 仍可访问） |
+| `/guestbook` | 留言墙 |
+| `/ama` | AMA 咨询 |
+| `/about` | 关于 |
+| `/newsletters/[id]` | Newsletter 阅读页 |
+| `/confirm/[token]` | 订阅确认 |
+| `/serach` | 搜索页 |
+| `/sign-in` · `/sign-up` | Clerk 登录/注册 |
+| `/feed.xml` | RSS（`/rss`、`/feed`、`/rss.xml` 重写指向它） |
+| `/blocked` | IP 被封禁提示页 |
+
+#### 后台管理（需 Clerk 登录 + `publicMetadata.siteOwner`）
+
+| 路由 | 说明 |
+|------|------|
+| `/admin` | 仪表盘（数据概览） |
+| `/admin/comments` | 评论管理 |
+| `/admin/newsletters` · `/admin/newsletters/new` | Newsletter 列表 / 新建 |
+| `/admin/subscribers` | 订阅者管理 |
+
+#### 内容管理
+
+| 路由 | 说明 |
+|------|------|
+| `/studio` | 内嵌 Sanity Studio（博客/项目/设置等 CMS 内容编辑） |
+
+#### API（`app/api/`）
+
+| 路由 | 说明 |
+|------|------|
+| `/api/activity` | 动态/活跃信息 |
+| `/api/comments/[id]` | 文章评论 CRUD |
+| `/api/guestbook` | 留言墙 |
+| `/api/newsletter` | 订阅 |
+| `/api/reactions` | 文章表情反应 |
+| `/api/favicon` | 站点图标抽取 |
+| `/api/link-preview` | 链接预览 |
+| `/api/tweet/[id]` | 推文数据 |
+
 ### 教程
 
 想部署成自己的网站？可以查看 Cali 的[官方教程](https://cali.so/blog/guide-for-cloning-my-site)
