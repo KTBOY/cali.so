@@ -8,24 +8,39 @@
  */
 
 import dynamic from 'next/dynamic'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 import { BlogPosts } from '~/app/(main)/blog/BlogPosts'
 // import { Headline } from '~/app/(main)/Headline'
-import { Newsletter } from '~/app/(main)/Newsletter'
 // import { Photos } from '~/app/(main)/Photos'
-import { Resume } from '~/app/(main)/Resume'
 import { PencilSwooshIcon } from '~/assets'
 import { DomainAnnouncementDialog } from '~/components/DomainAnnouncementDialog'
 
 const GoogleAds = dynamic(() => import('~/components/GooleAds/Home'), { ssr: false });
 import { Container } from '~/components/ui/Container'
-import { getSettings } from '~/sanity/queries'
 
+// 游戏卡片骨架屏：数据加载期间先占位，避免白屏
+function PostsSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="animate-pulse overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-700/50 dark:bg-zinc-800/80"
+        >
+          <div className="aspect-[240/135] w-full bg-zinc-200 dark:bg-zinc-700/60" />
+          <div className="space-y-3 p-5">
+            <div className="h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-700/60" />
+            <div className="h-3 w-full rounded bg-zinc-200 dark:bg-zinc-700/60" />
+            <div className="h-3 w-1/2 rounded bg-zinc-200 dark:bg-zinc-700/60" />
+          </div>
+        </div>
+      ))}
+    </>
+  )
+}
 
-
-export default async function BlogHomePage() {
-  const settings = await getSettings()
+export default function BlogHomePage() {
   return (
     <>
       <DomainAnnouncementDialog />
@@ -41,24 +56,14 @@ export default async function BlogHomePage() {
           <span className="ml-2">近期游戏</span>
         </h2>
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-1">
-
-          {/* <div className="flex flex-col gap-6 pt-6 ">
-            <div>xx</div>
-            <div>xx</div>
-            <div>xx</div>
-            {<BlogPosts />}
-            <div id="container-1e191f62a88d88bb29c51ea9d39ac0d7"></div>
-          </div> */}
           <div className="mt-6 grid grid-cols-1 justify-center gap-6 md:grid-cols-[repeat(auto-fit,75%)] lg:grid-cols-[repeat(auto-fit,31%)] lg:gap-8">
-            {<BlogPosts limit={1000} />}
-            {/* <div id="container-1e191f62a88d88bb29c51ea9d39ac0d7"></div> */}
+            {/* Suspense 流式渲染：页面骨架立即输出，文章列表异步填充 */}
+            <Suspense fallback={<PostsSkeleton />}>
+              <BlogPosts limit={1000} />
+            </Suspense>
 
           <GoogleAds client="ca-pub-8512812906555915" slot="2392600980" responsive />
           </div>
-          <aside className="space-y-10 lg:sticky lg:top-8 lg:h-fit lg:pl-16 xl:pl-20" style={{ 'display': 'none' }} >
-            <Newsletter />
-            {settings?.resume && <Resume resume={settings.resume} />}
-          </aside>
         </div>
       </Container >
     </>

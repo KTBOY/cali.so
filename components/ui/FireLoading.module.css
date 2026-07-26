@@ -1,0 +1,205 @@
+/* From Uiverse.io by S3nouy（颜色调整为深红色） */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+.fire {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+}
+
+@keyframes scaleUpDown {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+
+  50%,
+  90% {
+    transform: scaleY(1.1);
+  }
+
+  75% {
+    transform: scaleY(0.95);
+  }
+
+  80% {
+    transform: scaleX(0.95);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: skewX(0) scale(1);
+  }
+
+  50% {
+    transform: skewX(5deg) scale(0.9);
+  }
+}
+
+@keyframes particleUp {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    top: -100%;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    background-color: #8b0000;
+  }
+
+  50% {
+    background-color: #b30000;
+  }
+}
+
+.fireCenter {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  animation: scaleUpDown 3s ease-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.fireCenter .mainFire {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    farthest-corner at 10px 0,
+    #b30000 0%,
+    #8b0000 95%
+  );
+  transform: scaleX(0.8) rotate(45deg);
+  border-radius: 0 40% 60% 40%;
+  filter: drop-shadow(0 0 10px #b30000);
+}
+
+.fireCenter .particleFire {
+  position: absolute;
+  top: 60%;
+  left: 45%;
+  width: 10px;
+  height: 10px;
+  background-color: #b30000;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 10px #d43322);
+  animation: particleUp 2s ease-out 0s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.fireRight {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  animation: shake 2s ease-out 0s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.fireRight .mainFire {
+  position: absolute;
+  top: 15%;
+  right: -25%;
+  width: 80%;
+  height: 80%;
+  background-color: #8b0000;
+  transform: scaleX(0.8) rotate(45deg);
+  border-radius: 0 40% 60% 40%;
+  filter: drop-shadow(0 0 10px #b30000);
+}
+
+.fireRight .particleFire {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background-color: #b30000;
+  transform: scaleX(0.8) rotate(45deg);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 10px #b30000);
+  animation: particleUp 2s ease-out 0s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.fireLeft {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  animation: shake 3s ease-out 0s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.fireLeft .mainFire {
+  position: absolute;
+  top: 15%;
+  left: -20%;
+  width: 80%;
+  height: 80%;
+  background-color: #8b0000;
+  transform: scaleX(0.8) rotate(45deg);
+  border-radius: 0 40% 60% 40%;
+  filter: drop-shadow(0 0 10px #b30000);
+}
+
+.fireLeft .particleFire {
+  position: absolute;
+  top: 10%;
+  left: 20%;
+  width: 10%;
+  height: 10%;
+  background-color: #b30000;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 10px #d43322);
+  animation: particleUp 3s infinite ease-out 0s;
+  animation-fill-mode: both;
+}
+
+.fireBottom .mainFire {
+  position: absolute;
+  top: 30%;
+  left: 20%;
+  width: 75%;
+  height: 75%;
+  background-color: #8b0000;
+  transform: scaleX(0.8) rotate(45deg);
+  border-radius: 0 40% 100% 40%;
+  filter: blur(10px);
+  animation: glow 2s ease-out 0s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.text {
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: #b30000;
+}
