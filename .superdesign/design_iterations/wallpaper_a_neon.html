@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>方案A · 壁纸中心 — 暗色霓虹风（对齐游戏中心）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes gradient-x { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    @keyframes glow-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+    .animate-gradient-x{animation:gradient-x 6s ease infinite}
+    .animate-glow-pulse{animation:glow-pulse 2s ease-in-out infinite}
+    .animate-float{animation:float 7s ease-in-out infinite}
+    body{background:#09090b}
+    .masonry{column-count:2;column-gap:1rem}
+    @media(min-width:640px){.masonry{column-count:3}}
+    @media(min-width:1024px){.masonry{column-count:4}}
+    .masonry>div{break-inside:avoid;margin-bottom:1rem}
+  </style>
+</head>
+<body class="min-h-screen text-zinc-100 antialiased">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-8">
+
+    <!-- 霓虹舞台 -->
+    <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 px-6 py-14 shadow-2xl sm:px-10 sm:py-16">
+      <!-- 网格背景 -->
+      <div class="pointer-events-none absolute inset-0 opacity-[0.15]"
+        style="background-image:linear-gradient(rgba(217,70,239,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(217,70,239,.5) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 40%,transparent 100%)"></div>
+      <!-- 霓虹光晕 -->
+      <div class="pointer-events-none absolute -left-20 -top-24 h-72 w-72 animate-float rounded-full bg-fuchsia-500/20 blur-3xl"></div>
+      <div class="pointer-events-none absolute -right-16 top-10 h-72 w-72 animate-float rounded-full bg-cyan-500/20 blur-3xl" style="animation-delay:1.5s"></div>
+      <div class="pointer-events-none absolute bottom-0 left-1/2 h-64 w-96 -translate-x-1/2 rounded-full bg-violet-500/10 blur-3xl"></div>
+
+      <header class="relative mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-4 py-1.5 text-xs font-semibold tracking-widest text-fuchsia-300 backdrop-blur">
+          <span class="inline-block h-1.5 w-1.5 animate-glow-pulse rounded-full bg-fuchsia-400" style="box-shadow:0 0 8px 2px rgba(217,70,239,.8)"></span>
+          GALLERY · 壁纸集
+        </span>
+        <h1 class="animate-gradient-x mt-6 bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-6xl" style="background-size:200% auto">
+          壁纸中心
+        </h1>
+        <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-zinc-400">
+          每一次刷新都是全新的邂逅。精选<b class="text-fuchsia-300">二次元 / 动漫 / 高清</b>随机壁纸，点击即可查看原图与下载。
+        </p>
+      </header>
+
+      <!-- 分类切换 -->
+      <div class="relative mt-10 flex flex-wrap items-center justify-center gap-3">
+        <button data-id="img1" class="tab rounded-full border border-fuchsia-400/50 bg-fuchsia-500/20 px-5 py-2 text-sm font-semibold text-fuchsia-200 transition">二次元壁纸</button>
+        <button data-id="pc" class="tab rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-zinc-400 transition hover:border-fuchsia-400/40 hover:text-fuchsia-200">电脑壁纸</button>
+        <button id="refresh" class="group ml-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-500 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-fuchsia-500/25 transition hover:shadow-fuchsia-500/50">
+          <svg class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+          换一批
+        </button>
+      </div>
+    </div>
+
+    <!-- 瀑布流 -->
+    <div id="grid" class="masonry mt-10"></div>
+  </div>
+
+  <script>
+    const API = 'https://img.moehu.org/pic.php'
+    let currentId = 'img1'
+    const grid = document.getElementById('grid')
+
+    function load() {
+      grid.innerHTML = ''
+      for (let i = 0; i < 12; i++) {
+        const wrap = document.createElement('div')
+        wrap.className = 'group relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900'
+        const h = [220, 280, 340, 260][i % 4]
+        wrap.innerHTML = `
+          <div class="w-full animate-pulse bg-zinc-800" style="height:${h}px"></div>
+          <div class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="absolute inset-x-0 bottom-0 flex translate-y-3 items-center justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <span class="text-xs font-medium text-zinc-300">#${String(i + 1).padStart(2, '0')}</span>
+            <span class="rounded-full bg-fuchsia-500/90 px-3 py-1 text-xs font-bold text-white">下载壁纸</span>
+          </div>`
+        const img = document.createElement('img')
+        img.src = `${API}?id=${currentId}&size=mw690&_=${Date.now()}-${i}`
+        img.className = 'w-full object-cover transition-transform duration-500 group-hover:scale-105'
+        img.loading = 'lazy'
+        img.onload = () => wrap.firstElementChild.replaceWith(img)
+        grid.appendChild(wrap)
+      }
+    }
+
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentId = btn.dataset.id
+        document.querySelectorAll('.tab').forEach((b) => {
+          b.className = 'tab rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-zinc-400 transition hover:border-fuchsia-400/40 hover:text-fuchsia-200'
+        })
+        btn.className = 'tab rounded-full border border-fuchsia-400/50 bg-fuchsia-500/20 px-5 py-2 text-sm font-semibold text-fuchsia-200 transition'
+        load()
+      })
+    })
+    document.getElementById('refresh').addEventListener('click', load)
+    load()
+  </script>
+</body>
+</html>

@@ -36,6 +36,12 @@ const nextConfig = {
   redirects() {
     return [
       {
+        // 首页暂时隐藏，壁纸中心作为首页（恢复时删除此条即可）
+        "source": "/",
+        "destination": "/bz",
+        "permanent": false
+      },
+      {
         "source": "/twitter",
         "destination": "https://x.com/thecalicastle",
         "permanent": true

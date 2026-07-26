@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>方案C · 壁纸中心 — 沉浸画廊风（大图预览 + 毛玻璃）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{background:#0c0a09}
+    ::-webkit-scrollbar{height:6px;width:6px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+    .thumb-strip{scrollbar-width:thin}
+  </style>
+</head>
+<body class="min-h-screen text-zinc-100 antialiased">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-8">
+
+    <!-- 沉浸式主舞台：当前壁纸铺满作背景 -->
+    <div class="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
+      <!-- 背景大图（模糊铺底） -->
+      <img id="heroBg" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl transition-all duration-700" alt="" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/70"></div>
+
+      <div class="relative px-6 py-10 sm:px-12 sm:py-12">
+        <!-- 顶栏 -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-widest text-white backdrop-blur-xl">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z"/></svg>
+              WALLPAPER · 壁纸中心
+            </span>
+            <h1 class="mt-4 text-3xl font-black tracking-tight text-white drop-shadow-lg sm:text-5xl">壁纸中心</h1>
+            <p class="mt-2 max-w-md text-sm leading-relaxed text-zinc-300 drop-shadow">
+              点击下方缩略图即刻大图预览，喜欢就直接下载。随机图源，永不重样。
+            </p>
+          </div>
+
+          <!-- 分类 + 换一批 -->
+          <div class="flex flex-col items-end gap-3">
+            <div class="flex items-center gap-2 rounded-full border border-white/15 bg-black/30 p-1 backdrop-blur-xl">
+              <button data-id="img1" class="tab rounded-full bg-white px-4 py-1.5 text-xs font-bold text-zinc-900 transition">二次元</button>
+              <button data-id="pc" class="tab rounded-full px-4 py-1.5 text-xs font-medium text-zinc-300 transition hover:text-white">电脑壁纸</button>
+            </div>
+            <button id="refresh" class="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-semibold text-white backdrop-blur-xl transition hover:bg-white/20">
+              <svg class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+              换一批
+            </button>
+          </div>
+        </div>
+
+        <!-- 大图预览区 -->
+        <div class="relative mt-8 overflow-hidden rounded-2xl border border-white/15 bg-black/40 shadow-2xl backdrop-blur">
+          <div id="heroLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/60">
+            <span class="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
+          </div>
+          <img id="heroImg" class="h-[300px] w-full object-contain transition-opacity duration-500 sm:h-[440px]" alt="当前壁纸" />
+          <!-- 底部操作条 -->
+          <div class="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-5 py-4">
+            <span id="heroIndex" class="rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-zinc-200 backdrop-blur">1 / 10</span>
+            <div class="flex items-center gap-2">
+              <a id="heroOpen" target="_blank" class="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/25">查看原图</a>
+              <a id="heroDown" target="_blank" download class="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-zinc-900 transition hover:bg-zinc-200">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                下载壁纸
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 缩略图胶卷 -->
+        <div id="strip" class="thumb-strip mt-5 flex gap-3 overflow-x-auto pb-2"></div>
+      </div>
+    </div>
+
+    <p class="mt-8 text-center text-xs tracking-widest text-zinc-500">图片来源 · MoeHu 随机图片 API（moehu.org）</p>
+  </div>
+
+  <script>
+    const API = 'https://img.moehu.org/pic.php'
+    let currentId = 'img1'
+    let pics = []
+    let active = 0
+
+    const strip = document.getElementById('strip')
+    const heroImg = document.getElementById('heroImg')
+    const heroBg = document.getElementById('heroBg')
+    const heroLoading = document.getElementById('heroLoading')
+
+    function show(i) {
+      active = i
+      const url = pics[i]
+      heroLoading.style.display = 'flex'
+      heroImg.style.opacity = '0'
+      heroImg.onload = () => { heroLoading.style.display = 'none'; heroImg.style.opacity = '1' }
+      heroImg.src = url
+      heroBg.src = url
+      document.getElementById('heroIndex').textContent = `${i + 1} / ${pics.length}`
+      document.getElementById('heroOpen').href = url
+      document.getElementById('heroDown').href = url
+      strip.querySelectorAll('img').forEach((t, idx) => {
+        t.className = idx === i
+          ? 'h-20 w-32 flex-none cursor-pointer rounded-xl border-2 border-white object-cover shadow-lg transition'
+          : 'h-20 w-32 flex-none cursor-pointer rounded-xl border-2 border-transparent object-cover opacity-50 transition hover:opacity-90'
+      })
+    }
+
+    async function load() {
+      strip.innerHTML = '<span class="py-8 text-sm text-zinc-400">加载中…</span>'
+      heroLoading.style.display = 'flex'
+      try {
+        const res = await fetch(`${API}?return=json&id=${currentId}&num=10&_=${Date.now()}`)
+        const data = await res.json()
+        pics = data.pic || []
+        strip.innerHTML = ''
+        pics.forEach((url, i) => {
+          const t = document.createElement('img')
+          t.src = url
+          t.loading = 'lazy'
+          t.addEventListener('click', () => show(i))
+          strip.appendChild(t)
+        })
+        if (pics.length) show(0)
+      } catch (e) {
+        strip.innerHTML = '<span class="py-8 text-sm text-rose-400">加载失败，请点击「换一批」重试</span>'
+        heroLoading.style.display = 'none'
+      }
+    }
+
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentId = btn.dataset.id
+        document.querySelectorAll('.tab').forEach((b) => {
+          b.className = 'tab rounded-full px-4 py-1.5 text-xs font-medium text-zinc-300 transition hover:text-white'
+        })
+        btn.className = 'tab rounded-full bg-white px-4 py-1.5 text-xs font-bold text-zinc-900 transition'
+        load()
+      })
+    })
+    document.getElementById('refresh').addEventListener('click', load)
+    load()
+  </script>
+</body>
+</html>

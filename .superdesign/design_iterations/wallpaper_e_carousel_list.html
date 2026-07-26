@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>方案E · 壁纸中心 — 顶部轮播 + 底部壁纸列表（和纸日系风）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{background:#fafaf9}
+    .masonry{column-count:2;column-gap:1.25rem}
+    @media(min-width:640px){.masonry{column-count:3}}
+    @media(min-width:1024px){.masonry{column-count:4}}
+    .masonry>div{break-inside:avoid;margin-bottom:1.25rem}
+    .fade-slide{transition:opacity .6s ease}
+  </style>
+</head>
+<body class="min-h-screen text-zinc-800 antialiased">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-8">
+
+    <!-- ============ 顶部：和纸头图 + 沉浸轮播 ============ -->
+    <div class="relative overflow-hidden rounded-[2rem] border border-black/[0.06] bg-gradient-to-b from-sky-50/80 via-rose-50/40 to-white shadow-[0_20px_60px_-32px_rgba(0,0,0,0.25)]">
+      <!-- 柔光晕染 -->
+      <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-sky-200/50 blur-3xl"></div>
+      <div class="pointer-events-none absolute -right-20 top-8 h-72 w-72 rounded-full bg-rose-200/40 blur-3xl"></div>
+
+      <div class="relative px-6 pt-12 sm:px-14 sm:pt-14">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <span class="inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white/70 px-4 py-1.5 text-xs font-medium tracking-[0.2em] text-zinc-500 backdrop-blur">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-sky-400/80"></span>
+              壁纸箱 · WALLPAPER
+            </span>
+            <h1 class="mt-6 text-4xl font-semibold tracking-tight text-zinc-800 sm:text-5xl">壁纸中心</h1>
+            <p class="mt-3 text-sm font-light tracking-[0.35em] text-zinc-400">きせかえの小部屋</p>
+          </div>
+
+          <!-- 分类 + 换一批 -->
+          <div class="flex flex-col items-start gap-3 sm:items-end">
+            <div class="flex items-center gap-1 rounded-full border border-black/[0.06] bg-white/80 p-1 shadow-sm backdrop-blur">
+              <button data-id="img1" class="tab rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-medium text-white transition">二次元</button>
+              <button data-id="pc" class="tab rounded-full px-4 py-1.5 text-xs font-light text-zinc-500 transition hover:text-zinc-800">电脑壁纸</button>
+            </div>
+            <button id="refresh" class="group inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white px-5 py-2 text-sm font-medium text-zinc-600 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <svg class="h-4 w-4 text-rose-400 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+              换一批
+            </button>
+          </div>
+        </div>
+
+        <!-- ===== 轮播区 ===== -->
+        <div class="relative mt-8 -mx-2 sm:mx-0">
+          <div class="relative overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-white shadow-[0_24px_70px_-36px_rgba(0,0,0,0.35)]">
+            <!-- 模糊铺底 -->
+            <img id="heroBg" class="fade-slide absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl" alt="" />
+            <div class="absolute inset-0 bg-gradient-to-b from-white/60 via-white/10 to-white/60"></div>
+
+            <!-- 主图 -->
+            <div class="relative">
+              <div id="heroLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-sm">
+                <span class="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-rose-400"></span>
+              </div>
+              <img id="heroImg" class="fade-slide h-[280px] w-full object-contain drop-shadow-xl sm:h-[420px]" alt="轮播壁纸" />
+            </div>
+
+            <!-- 左右箭头 -->
+            <button id="prev" class="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/[0.06] bg-white/80 text-zinc-600 shadow-md backdrop-blur transition hover:scale-110 hover:text-zinc-900">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+            </button>
+            <button id="next" class="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/[0.06] bg-white/80 text-zinc-600 shadow-md backdrop-blur transition hover:scale-110 hover:text-zinc-900">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+            </button>
+
+            <!-- 底部操作条 + 圆点 -->
+            <div class="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between bg-gradient-to-t from-white/90 via-white/50 to-transparent px-5 py-4">
+              <div id="dots" class="flex items-center gap-2"></div>
+              <div class="flex items-center gap-2">
+                <a id="heroOpen" target="_blank" class="rounded-full border border-black/[0.06] bg-white/80 px-4 py-1.5 text-xs font-medium text-zinc-600 backdrop-blur transition hover:text-zinc-900 hover:shadow-md">查看原图</a>
+                <a id="heroDown" target="_blank" download class="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-medium text-white transition hover:-translate-y-0.5 hover:bg-zinc-700 hover:shadow-lg">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                  保存壁纸
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-10 sm:h-14"></div>
+      </div>
+    </div>
+
+    <!-- ============ 底部：壁纸列表（瀑布流） ============ -->
+    <div class="mt-12">
+      <div class="mb-6 flex items-baseline justify-between">
+        <h2 class="text-lg font-medium text-zinc-700">壁纸列表</h2>
+        <span class="text-xs font-light tracking-widest text-zinc-400">随机拾取 · 每次刷新都不同</span>
+      </div>
+      <div id="grid" class="masonry"></div>
+    </div>
+
+    <p class="mt-10 text-center text-xs font-light tracking-widest text-zinc-400">
+      图片来源 · MoeHu 随机图片 API
+    </p>
+  </div>
+
+  <script>
+    const API = 'https://img.moehu.org/pic.php'
+    const CAROUSEL_NUM = 5
+    const LIST_NUM = 12
+    let currentId = 'img1'
+    let carouselPics = []
+    let active = 0
+    let timer = null
+
+    const heroImg = document.getElementById('heroImg')
+    const heroBg = document.getElementById('heroBg')
+    const heroLoading = document.getElementById('heroLoading')
+    const dots = document.getElementById('dots')
+    const grid = document.getElementById('grid')
+
+    /* ---------- 轮播 ---------- */
+    function show(i) {
+      if (!carouselPics.length) return
+      active = (i + carouselPics.length) % carouselPics.length
+      const url = carouselPics[active]
+      heroLoading.style.display = 'flex'
+      heroImg.style.opacity = '0'
+      heroImg.onload = () => { heroLoading.style.display = 'none'; heroImg.style.opacity = '1' }
+      heroImg.src = url
+      heroBg.src = url
+      document.getElementById('heroOpen').href = url
+      document.getElementById('heroDown').href = url
+      dots.querySelectorAll('button').forEach((d, idx) => {
+        d.className = idx === active
+          ? 'h-2 w-6 rounded-full bg-rose-400 transition-all'
+          : 'h-2 w-2 rounded-full bg-zinc-300 transition-all hover:bg-zinc-400'
+      })
+    }
+
+    function startAutoPlay() {
+      clearInterval(timer)
+      timer = setInterval(() => show(active + 1), 4000)
+    }
+
+    document.getElementById('prev').addEventListener('click', () => { show(active - 1); startAutoPlay() })
+    document.getElementById('next').addEventListener('click', () => { show(active + 1); startAutoPlay() })
+
+    /* ---------- 壁纸列表 ---------- */
+    function renderList(pics) {
+      grid.innerHTML = ''
+      pics.forEach((url, i) => {
+        const wrap = document.createElement('div')
+        wrap.className = 'group relative overflow-hidden rounded-3xl border border-black/[0.06] bg-white p-1.5 shadow-[0_10px_40px_-24px_rgba(0,0,0,0.3)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.35)]'
+        const h = [200, 260, 320, 240][i % 4]
+        wrap.innerHTML = `
+          <div class="w-full animate-pulse rounded-[1.25rem] bg-zinc-100" style="height:${h}px"></div>
+          <div class="flex items-center justify-between px-3 py-2.5">
+            <span class="text-[11px] font-light tracking-[0.2em] text-zinc-400">No.${String(i + 1).padStart(2, '0')}</span>
+            <a href="${url}" target="_blank" download class="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-rose-500 group-hover:text-zinc-700">
+              保存
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            </a>
+          </div>`
+        const img = document.createElement('img')
+        img.src = url
+        img.className = 'w-full cursor-zoom-in rounded-[1.25rem] object-cover transition-transform duration-500 group-hover:scale-[1.02]'
+        img.loading = 'lazy'
+        img.addEventListener('click', () => window.open(url, '_blank'))
+        img.onload = () => wrap.firstElementChild.replaceWith(img)
+        grid.appendChild(wrap)
+      })
+    }
+
+    /* ---------- 加载 ---------- */
+    async function load() {
+      heroLoading.style.display = 'flex'
+      grid.innerHTML = '<div class="py-8 text-sm font-light tracking-widest text-zinc-400">加载中…</div>'
+      try {
+        const res = await fetch(`${API}?return=json&id=${currentId}&num=${CAROUSEL_NUM + LIST_NUM}&_=${Date.now()}`)
+        const data = await res.json()
+        const pics = data.pic || []
+        carouselPics = pics.slice(0, CAROUSEL_NUM)
+        // 圆点
+        dots.innerHTML = ''
+        carouselPics.forEach((_, i) => {
+          const d = document.createElement('button')
+          d.addEventListener('click', () => { show(i); startAutoPlay() })
+          dots.appendChild(d)
+        })
+        show(0)
+        startAutoPlay()
+        renderList(pics.slice(CAROUSEL_NUM))
+      } catch (e) {
+        grid.innerHTML = '<div class="py-8 text-sm text-rose-400">加载失败，请点击「换一批」重试</div>'
+        heroLoading.style.display = 'none'
+      }
+    }
+
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentId = btn.dataset.id
+        document.querySelectorAll('.tab').forEach((b) => {
+          b.className = 'tab rounded-full px-4 py-1.5 text-xs font-light text-zinc-500 transition hover:text-zinc-800'
+        })
+        btn.className = 'tab rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-medium text-white transition'
+        load()
+      })
+    })
+    document.getElementById('refresh').addEventListener('click', load)
+    load()
+  </script>
+</body>
+</html>
