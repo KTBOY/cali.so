@@ -30,6 +30,15 @@ export const tools: ToolItem[] = [
     accent: 'sakura',
   },
   {
+    slug: 'gif-compress',
+    name: 'GIF 压缩',
+    nameJa: 'GIF圧縮',
+    description:
+      '在浏览器本地压缩 GIF 动图：自动逐级尝试「缩放 + 抽帧 + 调色板量化（带抖动）」组合，取第一个满足目标体积且质量最高的方案，播放总时长保持不变。',
+    available: true,
+    accent: 'matcha',
+  },
+  {
     slug: 'world-cup-history',
     name: '世界杯历史',
     nameJa: 'ワールドカップ',
