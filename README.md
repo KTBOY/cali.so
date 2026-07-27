@@ -29,7 +29,8 @@ Cali 的个人博客网站 [https://cali.so/](https://cali.so/) 的源代码。
 
 | 路由 | 说明 |
 |------|------|
-| `/` | 首页（近期游戏列表） |
+| `/` | 临时重定向到 `/bz`（原首页暂时隐藏，恢复方法见下方说明） |
+| `/bz` | 壁纸中心（当前作为站点首页） |
 | `/blog` · `/blog/[slug]` | 博客列表 / 文章详情（Sanity） |
 | `/projects` | 项目展示 |
 | `/game-center` | 游戏中心（SWF/Ruffle 模拟器） |
@@ -44,6 +45,9 @@ Cali 的个人博客网站 [https://cali.so/](https://cali.so/) 的源代码。
 | `/sign-in` · `/sign-up` | Clerk 登录/注册 |
 | `/feed.xml` | RSS（`/rss`、`/feed`、`/rss.xml` 重写指向它） |
 | `/blocked` | IP 被封禁提示页 |
+
+> **首页隐藏说明**：原首页（`app/(main)/page.tsx`，近期游戏列表）暂时隐藏，`/` 在 `next.config.mjs` 的 redirects 中临时重定向到 `/bz`，页面代码未删除。
+> **恢复首页**：① 删除 `next.config.mjs` 中 `source: '/'` → `destination: '/bz'` 的 redirect；② 取消 `config/nav.ts` 中 `{ href: '/', text: 'home' }` 的注释；③ `app/sitemap.ts` 的 staticPaths 加回 `'/'`；④ 重启开发服务器。
 
 #### 后台管理（需 Clerk 登录 + `publicMetadata.siteOwner`）
 

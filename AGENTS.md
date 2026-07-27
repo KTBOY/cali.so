@@ -66,7 +66,8 @@ middleware.ts        # Clerk 鉴权 + IP 封禁 + 访客地理
 
 | 路由 | 说明 |
 |------|------|
-| `/` | 首页（近期游戏列表） |
+| `/` | 临时重定向到 `/bz`（原首页暂时隐藏，恢复方法见下方「首页隐藏与恢复」） |
+| `/bz` | 壁纸中心（当前作为站点首页） |
 | `/blog` · `/blog/[slug]` | 博客列表 / 文章详情（Sanity） |
 | `/projects` | 项目展示 |
 | `/game-center` | 游戏中心（SWF/Ruffle） |
@@ -117,6 +118,16 @@ middleware.ts        # Clerk 鉴权 + IP 封禁 + 访客地理
 
 - 新增前台页面：在 `config/nav.ts` 注册菜单（隐藏项用注释保留）；公开页面需加入 `middleware.ts` 的 `publicRoutes`，否则被 Clerk 拦截
 - 重定向（/twitter、/github 等社交短链）和 rewrites 统一在 `next.config.mjs` 配置
+
+### 首页隐藏与恢复
+
+当前原首页（`app/(main)/page.tsx`，近期游戏列表）暂时隐藏，`/` 通过 `next.config.mjs` 的 redirects 临时重定向（307）到 `/bz` 壁纸中心；页面代码未删除，随时可恢复。涉及三处配置：
+
+1. `next.config.mjs` — redirects() 中 `source: '/'` → `destination: '/bz'` 的规则
+2. `config/nav.ts` — `{ href: '/', text: 'home' }` 菜单项已注释
+3. `app/sitemap.ts` — staticPaths 只收录了 `/bz`，未收录 `/`
+
+**恢复步骤**：删除 next.config.mjs 中该条 redirect → 取消 nav.ts 中首页菜单项的注释 → sitemap.ts 的 staticPaths 加回 `'/'` → 重启开发服务器（next.config.mjs 改动需重启生效）。
 
 ## 代码约定
 
