@@ -1,6 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
+import { useLocale, useTranslations } from 'next-intl'
 import React from 'react'
 
 import { wallpaperGroups } from '~/config/wallpaper'
@@ -140,6 +141,7 @@ function CaptchaDialog({
   const [code, setCode] = React.useState(genCaptchaCode)
   const [value, setValue] = React.useState('')
   const [error, setError] = React.useState(false)
+  const t = useTranslations('wallpaper')
 
   React.useEffect(() => {
     if (canvasRef.current) drawCaptcha(canvasRef.current, code)
@@ -181,10 +183,10 @@ function CaptchaDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">
-          下载验证
+          {t('captchaTitle')}
         </h3>
         <p className="mt-1 text-xs font-light text-zinc-400">
-          输入下方验证码即可保存壁纸
+          {t('captchaDesc')}
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -193,7 +195,7 @@ function CaptchaDialog({
             width={140}
             height={44}
             className="cursor-pointer rounded-xl border border-black/[0.06] dark:border-white/10"
-            title="看不清？点击换一张"
+            title={t('captchaRefreshTip')}
             onClick={refresh}
           />
           <button
@@ -201,7 +203,7 @@ function CaptchaDialog({
             className="text-xs font-light text-zinc-400 underline-offset-2 transition-colors hover:text-zinc-700 hover:underline dark:hover:text-zinc-200"
             onClick={refresh}
           >
-            换一张
+            {t('captchaRefresh')}
           </button>
         </div>
 
@@ -209,7 +211,7 @@ function CaptchaDialog({
           ref={inputRef}
           value={value}
           maxLength={4}
-          placeholder="请输入验证码"
+          placeholder={t('captchaPlaceholder')}
           className={`mt-4 w-full rounded-xl border bg-zinc-50 px-4 py-2.5 text-sm uppercase tracking-[0.3em] text-zinc-800 outline-none transition-colors placeholder:normal-case placeholder:tracking-normal placeholder:text-zinc-400 focus:border-rose-300 dark:bg-zinc-800 dark:text-zinc-100 ${
             error
               ? 'border-rose-400'
@@ -224,7 +226,7 @@ function CaptchaDialog({
           onKeyDown={(e) => e.key === 'Enter' && submit()}
         />
         {error && (
-          <p className="mt-2 text-xs text-rose-500">验证码不正确，请重试</p>
+          <p className="mt-2 text-xs text-rose-500">{t('captchaError')}</p>
         )}
 
         <div className="mt-5 flex gap-2.5">
@@ -233,14 +235,14 @@ function CaptchaDialog({
             className="flex-1 rounded-xl border border-black/[0.08] py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-800 dark:border-white/10 dark:hover:text-zinc-200"
             onClick={onClose}
           >
-            取消
+            {t('cancel')}
           </button>
           <button
             type="button"
             className="flex-1 rounded-xl bg-zinc-800 py-2.5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-zinc-700 hover:shadow-lg dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             onClick={submit}
           >
-            确认下载
+            {t('confirmDownload')}
           </button>
         </div>
       </motion.div>
@@ -264,6 +266,7 @@ function Lightbox({
 }) {
   const [loaded, setLoaded] = React.useState(false)
   const url = pics[index]
+  const t = useTranslations('wallpaper')
 
   // 键盘操作：Esc 关闭，左右方向键切换
   React.useEffect(() => {
@@ -306,7 +309,7 @@ function Lightbox({
       <motion.img
         key={url}
         src={url}
-        alt={`壁纸大图 ${index + 1}`}
+        alt={t('lightboxAlt', { index: index + 1 })}
         referrerPolicy="no-referrer"
         className="max-h-[86vh] max-w-[92vw] rounded-2xl object-contain shadow-2xl"
         initial={{ opacity: 0, scale: 0.96 }}
@@ -319,7 +322,7 @@ function Lightbox({
       {/* 关闭按钮 */}
       <button
         type="button"
-        aria-label="关闭大图"
+        aria-label={t('closeLightbox')}
         className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:rotate-90 hover:bg-white/25"
         onClick={onClose}
       >
@@ -342,7 +345,7 @@ function Lightbox({
       {index > 0 && (
         <button
           type="button"
-          aria-label="上一张"
+          aria-label={t('prev')}
           className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:scale-110 hover:bg-white/25 sm:left-6"
           onClick={(e) => {
             e.stopPropagation()
@@ -367,7 +370,7 @@ function Lightbox({
       {index < pics.length - 1 && (
         <button
           type="button"
-          aria-label="下一张"
+          aria-label={t('next')}
           className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:scale-110 hover:bg-white/25 sm:right-6"
           onClick={(e) => {
             e.stopPropagation()
@@ -416,7 +419,7 @@ function Lightbox({
               d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
             />
           </svg>
-          保存壁纸
+          {t('saveWallpaper')}
         </button>
       </div>
     </motion.div>
@@ -443,6 +446,7 @@ const WallpaperCard = React.memo(function WallpaperCard({
   const [status, setStatus] = React.useState<'loading' | 'loaded' | 'error'>(
     'loading'
   )
+  const t = useTranslations('wallpaper')
 
   // 进入视口前只渲染骨架，由共享 IntersectionObserver 触发真正加载
   React.useEffect(() => {
@@ -471,7 +475,7 @@ const WallpaperCard = React.memo(function WallpaperCard({
           // 加载失败兜底（防盗链 / 坏图），占位盒尺寸不变
           <div className="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
             <span className="text-xs font-light text-zinc-400">
-              图片加载失败
+              {t('imageLoadFailed')}
             </span>
           </div>
         ) : (
@@ -479,7 +483,7 @@ const WallpaperCard = React.memo(function WallpaperCard({
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={url}
-              alt={`壁纸 No.${index + 1}`}
+              alt={t('cardAlt', { index: index + 1 })}
               decoding="async"
               referrerPolicy="no-referrer"
               className={`absolute inset-0 h-full w-full cursor-zoom-in object-cover transition-[opacity,transform] duration-500 ease-out group-hover:scale-[1.02] ${
@@ -502,7 +506,7 @@ const WallpaperCard = React.memo(function WallpaperCard({
           className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-rose-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-200"
           onClick={() => onDownload(url)}
         >
-          保存
+          {t('save')}
           <svg
             className="h-3.5 w-3.5"
             fill="none"
@@ -533,6 +537,8 @@ function CategoryPanel({
   onSelect: (groupIndex: number, id: string) => void
 }) {
   const [query, setQuery] = React.useState('')
+  const t = useTranslations('wallpaper')
+  const locale = useLocale()
 
   // 搜索过滤（187 项纯字符串匹配，开销极小；保留原分组索引便于选中后回填）
   // 注意：不可用 useDeferredValue，会导致 AnimatePresence 退出动画后无法卸载
@@ -541,11 +547,13 @@ function CategoryPanel({
     return wallpaperGroups
       .map((g, gi) => ({
         name: g.name,
+        nameEn: g.nameEn,
         groupIndex: gi,
         items: q
           ? g.items.filter(
               (c) =>
                 c.name.toLowerCase().includes(q) ||
+                c.nameEn.toLowerCase().includes(q) ||
                 c.id.toLowerCase().includes(q)
             )
           : g.items,
@@ -587,14 +595,14 @@ function CategoryPanel({
         <div className="border-b border-black/[0.05] p-5 dark:border-white/[0.06]">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">
-              全部分类
+              {t('allCategories')}
               <span className="ml-2 text-xs font-light text-zinc-400">
-                {totalCategoryCount} 个
+                {t('categoryCount', { count: totalCategoryCount })}
               </span>
             </h3>
             <button
               type="button"
-              aria-label="关闭分类面板"
+              aria-label={t('closePanel')}
               className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-white/10 dark:hover:text-zinc-200"
               onClick={onClose}
             >
@@ -629,7 +637,7 @@ function CategoryPanel({
             </svg>
             <input
               value={query}
-              placeholder="搜索分类，如：原神、雷姆…"
+              placeholder={t('searchPlaceholder')}
               className="w-full rounded-xl border border-black/[0.08] bg-zinc-50 py-2.5 pl-10 pr-4 text-sm text-zinc-800 outline-none transition-colors placeholder:text-zinc-400 focus:border-rose-300 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-100"
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -640,13 +648,13 @@ function CategoryPanel({
         <div className="flex-1 overflow-y-auto overscroll-contain p-5">
           {filtered.length === 0 && (
             <p className="py-10 text-center text-sm font-light text-zinc-400">
-              没有找到相关分类
+              {t('noResults')}
             </p>
           )}
           {filtered.map((g) => (
             <div key={g.name} className="mb-5 last:mb-0">
               <p className="mb-2.5 text-xs font-medium tracking-[0.2em] text-zinc-400">
-                {g.name}
+                {locale === 'zh' ? g.name : g.nameEn}
                 <span className="ml-1.5 font-light">{g.items.length}</span>
               </p>
               <div className="flex flex-wrap gap-2">
@@ -661,7 +669,7 @@ function CategoryPanel({
                     }
                     onClick={() => onSelect(g.groupIndex, c.id)}
                   >
-                    {c.name}
+                    {locale === 'zh' ? c.name : c.nameEn}
                   </button>
                 ))}
               </div>
@@ -684,6 +692,8 @@ export function WallpaperWall() {
   const [viewIndex, setViewIndex] = React.useState<number | null>(null)
   const [pendingUrl, setPendingUrl] = React.useState<string | null>(null)
   const columnCount = useColumnCount()
+  const t = useTranslations('wallpaper')
+  const locale = useLocale()
 
   const loadingRef = React.useRef(false)
   const seenRef = React.useRef<Set<string>>(new Set())
@@ -818,7 +828,7 @@ export function WallpaperWall() {
             }
             onClick={() => switchGroup(gi)}
           >
-            {g.name}
+            {locale === 'zh' ? g.name : g.nameEn}
             <span className="ml-1.5 text-[10px] font-light opacity-60">
               {g.items.length}
             </span>
@@ -841,7 +851,7 @@ export function WallpaperWall() {
               }
               onClick={() => setCategory(c.id)}
             >
-              {c.name}
+              {locale === 'zh' ? c.name : c.nameEn}
             </button>
           ))}
         </div>
@@ -863,14 +873,14 @@ export function WallpaperWall() {
               d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
             />
           </svg>
-          全部分类
+          {t('allCategories')}
         </button>
       </div>
 
       {/* 状态与操作行 */}
       <div className="mt-5 flex items-center justify-between gap-4">
         <span className="text-xs font-light tracking-widest text-zinc-400">
-          已加载 {pics.length} 枚 · 滚动取更多
+          {t('loadedCount', { count: pics.length })}
         </span>
         <button
           type="button"
@@ -890,7 +900,7 @@ export function WallpaperWall() {
               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
             />
           </svg>
-          换一批
+          {t('refreshBatch')}
         </button>
       </div>
 
@@ -943,14 +953,14 @@ export function WallpaperWall() {
       {failed && (
         <div className="mt-8 flex flex-col items-center gap-3 text-center">
           <p className="text-sm font-light text-zinc-400">
-            壁纸加载失败，可能是图源暂时不可用
+            {t('loadFailed')}
           </p>
           <button
             type="button"
             className="rounded-full border border-black/[0.08] px-5 py-2 text-sm font-medium text-zinc-600 transition hover:shadow-md dark:border-white/10 dark:text-zinc-300"
             onClick={() => void fetchPics(category, pics.length > 0)}
           >
-            点击重试
+            {t('retry')}
           </button>
         </div>
       )}
@@ -960,13 +970,13 @@ export function WallpaperWall() {
         {loading && pics.length > 0 && (
           <span className="inline-flex items-center gap-2.5 text-xs font-light tracking-widest text-zinc-400">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-200 border-t-lime-600 dark:border-zinc-700 dark:border-t-lime-400" />
-            正在拾取新壁纸…
+            {t('fetching')}
           </span>
         )}
       </div>
 
       <p className="mt-2 text-center text-xs font-light tracking-widest text-zinc-400">
-        图片来源 · MoeHu 随机图片 API
+        {t('imageSource')}
       </p>
 
       {/* 大图查看器 */}

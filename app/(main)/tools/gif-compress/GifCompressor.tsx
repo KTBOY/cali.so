@@ -1,6 +1,7 @@
 'use client'
 
 import { clsxm } from '@zolplay/utils'
+import { useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
@@ -28,10 +29,6 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
-function formatDuration(ms: number): string {
-  return `${(ms / 1000).toFixed(1)} 秒`
-}
-
 type GifInfo = {
   width: number
   height: number
@@ -40,6 +37,7 @@ type GifInfo = {
 }
 
 export function GifCompressor() {
+  const t = useTranslations('gifCompress')
   const [gifFile, setGifFile] = useState<File | null>(null)
   const [gifInfo, setGifInfo] = useState<GifInfo | null>(null)
   const [originalUrl, setOriginalUrl] = useState<string | null>(null)
@@ -56,6 +54,9 @@ export function GifCompressor() {
   const inputRef = useRef<HTMLInputElement>(null)
   const bufferRef = useRef<ArrayBuffer | null>(null)
   const cancelRef = useRef<CancelToken | null>(null)
+
+  const fmtDuration = (ms: number) =>
+    t('durationSeconds', { value: (ms / 1000).toFixed(1) })
 
   // 卸载时取消进行中的任务并释放 URL
   useEffect(() => {
@@ -82,7 +83,7 @@ export function GifCompressor() {
         const buffer = await file.arrayBuffer()
         if (!isLikelyGif(new Uint8Array(buffer))) {
           setStatus('error')
-          setMessage('这个文件看起来不是有效的 GIF（文件头应为 GIF87a / GIF89a）。')
+          setMessage(t('invalidGif'))
           return
         }
         bufferRef.current = buffer
@@ -95,11 +96,13 @@ export function GifCompressor() {
       } catch (err) {
         setStatus('error')
         setMessage(
-          err instanceof Error ? `读取失败：${err.message}` : '读取文件时发生未知错误。'
+          err instanceof Error
+            ? t('readFailed', { message: err.message })
+            : t('readUnknownError')
         )
       }
     },
-    [resetResult]
+    [resetResult, t]
   )
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +117,7 @@ export function GifCompressor() {
     if (!file) return
     if (!/\.gif$/i.test(file.name)) {
       setStatus('error')
-      setMessage('请拖入 .gif 格式的文件。')
+      setMessage(t('dropGifOnly'))
       return
     }
     void pickGif(file)
@@ -126,7 +129,7 @@ export function GifCompressor() {
 
     resetResult()
     setStatus('compressing')
-    setMessage('正在解码 GIF…')
+    setMessage(t('decoding'))
 
     const token: CancelToken = { cancelled: false }
     cancelRef.current = token
@@ -139,11 +142,15 @@ export function GifCompressor() {
         onProgress: (p) => {
           setProgress(p)
           setMessage(
-            `第 ${p.attempt}/${p.totalAttempts} 档 · 缩放 ${Math.round(
-              p.params.scale * 100
-            )}% · 每 ${p.params.frameStep} 帧取 1 帧 · ${p.params.colors} 色 · 帧 ${
-              p.frame
-            }/${p.totalFrames}`
+            t('progressText', {
+              attempt: p.attempt,
+              total: p.totalAttempts,
+              scale: Math.round(p.params.scale * 100),
+              step: p.params.frameStep,
+              colors: p.params.colors,
+              frame: p.frame,
+              totalFrames: p.totalFrames,
+            })
           )
         },
       })
@@ -156,21 +163,19 @@ export function GifCompressor() {
         name: `${base}-compressed.gif`,
       })
       setStatus('done')
-      setMessage(
-        res.metTarget
-          ? '压缩完成！'
-          : '已用最激进档位压缩，但仍未达到目标体积，结果如右。'
-      )
+      setMessage(res.metTarget ? t('done') : t('doneNotMet'))
     } catch (err) {
       if (token.cancelled) return
       setStatus('error')
       setMessage(
-        err instanceof Error ? `压缩出错：${err.message}` : '压缩过程中发生未知错误。'
+        err instanceof Error
+          ? t('compressError', { message: err.message })
+          : t('compressUnknownError')
       )
     } finally {
       setProgress(null)
     }
-  }, [gifFile, targetBytes, dither, resetResult])
+  }, [gifFile, targetBytes, dither, resetResult, t])
 
   const triggerDownload = () => {
     if (!result) return
@@ -196,7 +201,7 @@ export function GifCompressor() {
               1
             </span>
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              选择 GIF 文件
+              {t('step1')}
             </h2>
           </div>
 
@@ -229,7 +234,7 @@ export function GifCompressor() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={originalUrl}
-                    alt="原始 GIF 预览"
+                    alt={t('originalPreviewAlt')}
                     className="max-h-40 rounded-xl border border-black/[0.06] object-contain dark:border-white/10"
                   />
                 )}
@@ -239,8 +244,10 @@ export function GifCompressor() {
                 <p className="text-xs font-light text-zinc-400">
                   {formatBytes(gifFile.size)}
                   {gifInfo &&
-                    ` · ${gifInfo.width}×${gifInfo.height} · ${gifInfo.frameCount} 帧 · ${formatDuration(gifInfo.totalDuration)}`}
-                  {' · 点击可重新选择'}
+                    ` · ${gifInfo.width}×${gifInfo.height} · ${t('frames', {
+                      count: gifInfo.frameCount,
+                    })} · ${fmtDuration(gifInfo.totalDuration)}`}
+                  {` · ${t('reselectHint')}`}
                 </p>
               </div>
             ) : (
@@ -251,10 +258,10 @@ export function GifCompressor() {
                   </svg>
                 </span>
                 <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                  点击选择，或将 .gif 文件拖到这里
+                  {t('dropHint')}
                 </p>
                 <p className="text-xs font-light text-zinc-400">
-                  仅支持 .gif 格式的动图 / 静图
+                  {t('gifOnlyHint')}
                 </p>
               </div>
             )}
@@ -266,7 +273,7 @@ export function GifCompressor() {
               2
             </span>
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              目标体积
+              {t('step2')}
             </h2>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -296,8 +303,10 @@ export function GifCompressor() {
               3
             </span>
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              色彩抖动
-              <span className="ml-1.5 text-xs font-light text-zinc-400">（可选）</span>
+              {t('step3')}
+              <span className="ml-1.5 text-xs font-light text-zinc-400">
+                {t('optional')}
+              </span>
             </h2>
           </div>
           <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 transition-colors has-[:checked]:border-emerald-300 has-[:checked]:bg-emerald-50/50 dark:border-white/10 dark:bg-white/[0.02] dark:has-[:checked]:border-emerald-400/40 dark:has-[:checked]:bg-emerald-500/5">
@@ -312,10 +321,10 @@ export function GifCompressor() {
             />
             <span>
               <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                开启 Floyd–Steinberg 抖动（推荐）
+                {t('ditherLabel')}
               </span>
               <span className="mt-0.5 block text-xs font-light text-zinc-400">
-                降低颜色数时用误差扩散模拟渐变，色带更少、观感更细腻；代价是处理稍慢、体积略增。
+                {t('ditherDesc')}
               </span>
             </span>
           </label>
@@ -338,14 +347,14 @@ export function GifCompressor() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                压缩中…
+                {t('compressing')}
               </>
             ) : (
               <>
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
                 </svg>
-                开始压缩
+                {t('startCompress')}
               </>
             )}
           </button>
@@ -381,7 +390,9 @@ export function GifCompressor() {
         {/* 结果卡片 */}
         <div className="overflow-hidden rounded-3xl border border-black/[0.06] bg-white/80 shadow-[0_10px_40px_-24px_rgba(0,0,0,0.3)] backdrop-blur dark:border-white/[0.06] dark:bg-white/[0.03]">
           <div className="border-b border-black/[0.04] px-6 py-4 dark:border-white/[0.06]">
-            <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">成果</h2>
+            <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+              {t('resultTitle')}
+            </h2>
           </div>
           <div className="px-6 py-8">
             {result && status === 'done' ? (
@@ -389,7 +400,7 @@ export function GifCompressor() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={result.url}
-                  alt="压缩后 GIF 预览"
+                  alt={t('resultPreviewAlt')}
                   className="max-h-48 rounded-xl border border-black/[0.06] object-contain dark:border-white/10"
                 />
                 <p className="mt-4 text-sm font-medium text-zinc-700 dark:text-zinc-200">
@@ -397,38 +408,50 @@ export function GifCompressor() {
                 </p>
                 <p className="text-xs font-light text-zinc-400">
                   {formatBytes(result.blob.size)}
-                  {gifFile && ` · 原 ${formatBytes(gifFile.size)}`}
-                  {ratio && ` · 压至 ${ratio}%`}
+                  {gifFile &&
+                    ` · ${t('originalSize', { size: formatBytes(gifFile.size) })}`}
+                  {ratio && ` · ${t('compressedTo', { ratio })}`}
                 </p>
 
                 {/* 方案明细 */}
                 <dl className="mt-4 w-full space-y-1.5 rounded-2xl bg-zinc-50/80 px-4 py-3 text-left text-xs font-light text-zinc-500 dark:bg-white/[0.03] dark:text-zinc-400">
                   <div className="flex justify-between">
-                    <dt>尺寸</dt>
+                    <dt>{t('dlSize')}</dt>
                     <dd>
                       {result.originalWidth}×{result.originalHeight} →{' '}
-                      {result.width}×{result.height}（{Math.round(result.scale * 100)}%）
+                      {result.width}×{result.height}
+                      {t('scalePercent', {
+                        percent: Math.round(result.scale * 100),
+                      })}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt>帧数</dt>
+                    <dt>{t('dlFrames')}</dt>
                     <dd>
-                      {result.originalFrameCount} 帧 → {result.frameCount} 帧
-                      {result.frameStep > 1 && `（每 ${result.frameStep} 帧取 1 帧）`}
+                      {t('frames', { count: result.originalFrameCount })} →{' '}
+                      {t('frames', { count: result.frameCount })}
+                      {result.frameStep > 1 &&
+                        t('frameStepNote', { step: result.frameStep })}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt>颜色</dt>
-                    <dd>{result.colors} 色{dither && '（带抖动）'}</dd>
+                    <dt>{t('dlColors')}</dt>
+                    <dd>
+                      {t('colorsValue', { count: result.colors })}
+                      {dither && t('withDither')}
+                    </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt>总时长</dt>
-                    <dd>{formatDuration(result.totalDuration)}（保持不变）</dd>
+                    <dt>{t('dlDuration')}</dt>
+                    <dd>
+                      {fmtDuration(result.totalDuration)}
+                      {t('unchanged')}
+                    </dd>
                   </div>
                 </dl>
                 {!result.metTarget && (
                   <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-[11px] font-light leading-relaxed text-amber-600 dark:bg-amber-500/10 dark:text-amber-300">
-                    已是最激进档位仍未达标，可尝试更大的目标体积。
+                    {t('notMetHint')}
                   </p>
                 )}
 
@@ -440,10 +463,10 @@ export function GifCompressor() {
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                   </svg>
-                  下载 GIF
+                  {t('downloadGif')}
                 </button>
                 <p className="mt-3 text-[11px] font-light leading-relaxed text-zinc-400">
-                  原文件不会被改动，压缩版另存为新文件。
+                  {t('downloadNote')}
                 </p>
               </div>
             ) : (
@@ -454,7 +477,7 @@ export function GifCompressor() {
                   </svg>
                 </span>
                 <p className="mt-4 text-sm font-light text-zinc-400">
-                  压缩后的 GIF 会出现在这里
+                  {t('emptyResult')}
                 </p>
               </div>
             )}
@@ -465,24 +488,40 @@ export function GifCompressor() {
         <div className="rounded-3xl border border-black/[0.06] bg-gradient-to-b from-emerald-50/60 to-white p-6 dark:border-white/[0.06] dark:from-emerald-500/[0.04] dark:to-transparent">
           <h3 className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            使用须知
+            {t('notesTitle')}
           </h3>
           <ul className="mt-4 space-y-3 text-xs font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
             <li className="flex gap-2">
               <span className="text-emerald-400">·</span>
-              全程在浏览器本地完成，<b className="font-medium text-zinc-600 dark:text-zinc-300">文件不会上传服务器</b>，请放心。
+              <span>
+                {t.rich('note1Rich', {
+                  b: (chunks) => (
+                    <b className="font-medium text-zinc-600 dark:text-zinc-300">
+                      {chunks}
+                    </b>
+                  ),
+                })}
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="text-emerald-400">·</span>
-              抽帧时被丢弃帧的延时会<b className="font-medium text-zinc-600 dark:text-zinc-300">按比例累加到保留帧</b>上，播放总时长与节奏保持不变。
+              <span>
+                {t.rich('note2Rich', {
+                  b: (chunks) => (
+                    <b className="font-medium text-zinc-600 dark:text-zinc-300">
+                      {chunks}
+                    </b>
+                  ),
+                })}
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="text-emerald-400">·</span>
-              帧数多、尺寸大的 GIF 需要多试几档参数，请耐心等待。
+              {t('note3')}
             </li>
             <li className="flex gap-2">
               <span className="text-emerald-400">·</span>
-              若结果画面偏小或色彩不够，可换更大的目标体积重压一次。
+              {t('note4')}
             </li>
           </ul>
         </div>
@@ -491,18 +530,16 @@ export function GifCompressor() {
         <div className="rounded-3xl border border-black/[0.06] bg-white/60 p-6 dark:border-white/[0.06] dark:bg-white/[0.02]">
           <h3 className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            原理
+            {t('principleTitle')}
           </h3>
           <p className="mt-4 text-xs font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-            按质量从高到低逐级尝试「缩放 + 抽帧 + 调色板量化」组合，取第一个满足目标体积的方案。解码用{' '}
-            <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
-              gifuct-js
-            </code>
-            ，量化编码用{' '}
-            <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
-              gifenc
-            </code>
-            ，抖动为 Floyd–Steinberg 误差扩散——与 Python + Pillow 的经典做法等价。
+            {t.rich('principleRich', {
+              code: (chunks) => (
+                <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
+                  {chunks}
+                </code>
+              ),
+            })}
           </p>
         </div>
       </div>

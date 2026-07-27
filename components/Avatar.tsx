@@ -10,6 +10,7 @@ import { type ComponentProps } from '@zolplay/react'
 import { clsxm } from '@zolplay/utils'
 import Image from 'next/image'
 import Link, { type LinkProps } from 'next/link'
+import { useTranslations } from 'next-intl'
 
 import portraitImage from '~/assets/Portrait.jpg'
 import portraitAltImage from '~/assets/PortraitAlt.jpg'
@@ -39,9 +40,10 @@ function AvatarImage({
   alt,
   ...props
 }: AvatarImageProps) {
+  const t = useTranslations('nav')
   return (
     <Link
-      aria-label="主页"
+      aria-label={t('home')}
       className={clsxm(className, 'pointer-events-auto')}
       href={href ?? '/'}
       {...props}

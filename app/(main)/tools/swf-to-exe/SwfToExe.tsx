@@ -1,6 +1,8 @@
 'use client'
 
 import { clsxm } from '@zolplay/utils'
+import { zipSync } from 'fflate'
+import { useTranslations } from 'next-intl'
 import React, { useCallback, useRef, useState } from 'react'
 
 /** 打包后的 Flash 独立播放器（干净的 projector，末尾无附带 SWF） */
@@ -28,7 +30,7 @@ function isLikelySwf(bytes: Uint8Array): boolean {
  * 将 SWF 附加到 Flash 独立播放器末尾，生成自运行 EXE。
  * 结构： [projector.exe] + [swf] + [魔数 4B] + [swf 长度 4B 小端]
  */
-function buildExe(projector: Uint8Array, swf: Uint8Array): Blob {
+function buildExe(projector: Uint8Array, swf: Uint8Array): Uint8Array {
   const footer = new Uint8Array(8)
   footer.set(FOOTER_MAGIC, 0)
   const len = swf.length
@@ -42,10 +44,22 @@ function buildExe(projector: Uint8Array, swf: Uint8Array): Blob {
   out.set(swf, projector.length)
   out.set(footer, projector.length + swf.length)
 
-  return new Blob([out], { type: 'application/octet-stream' })
+  return out
+}
+
+/**
+ * 把生成的 EXE 装入 ZIP 压缩包。
+ * 直接下载裸 EXE 会被 Chrome / Edge / SmartScreen 拦截甚至静默丢弃，
+ * 压缩包则可以正常下载，解压后双击 EXE 即可运行。
+ * SWF 内容大多已压缩过，故用 level 0（仅存储）保证大文件秒级打包。
+ */
+function buildZip(exeName: string, exe: Uint8Array): Blob {
+  const zipped: Uint8Array = zipSync({ [exeName]: exe }, { level: 0 })
+  return new Blob([zipped], { type: 'application/zip' })
 }
 
 export function SwfToExe() {
+  const t = useTranslations('swfToExe')
   const [swfFile, setSwfFile] = useState<File | null>(null)
   const [useCustomProjector, setUseCustomProjector] = useState(false)
   const [projectorFile, setProjectorFile] = useState<File | null>(null)
@@ -92,7 +106,7 @@ export function SwfToExe() {
     if (!file) return
     if (!/\.swf$/i.test(file.name)) {
       setStatus('error')
-      setMessage('请拖入 .swf 格式的文件。')
+      setMessage(t('dropSwfOnly'))
       return
     }
     pickSwf(file)
@@ -101,14 +115,14 @@ export function SwfToExe() {
   const handleConvert = useCallback(async () => {
     if (!swfFile) return
     setStatus('converting')
-    setMessage('正在读取文件…')
+    setMessage(t('readingFile'))
 
     try {
       // 1. 读取 SWF
       const swf = new Uint8Array(await swfFile.arrayBuffer())
       if (!isLikelySwf(swf)) {
         setStatus('error')
-        setMessage('这个文件看起来不是有效的 SWF（文件头应为 FWS / CWS / ZWS）。')
+        setMessage(t('invalidSwf'))
         return
       }
 
@@ -117,42 +131,48 @@ export function SwfToExe() {
       if (useCustomProjector) {
         if (!projectorFile) {
           setStatus('error')
-          setMessage('你选择了使用自定义播放器，请先选择一个 Flash 播放器 .exe 文件。')
+          setMessage(t('customProjectorMissing'))
           return
         }
-        setMessage('正在读取自定义播放器…')
+        setMessage(t('readingCustomProjector'))
         projector = new Uint8Array(await projectorFile.arrayBuffer())
       } else {
-        setMessage('正在载入内置 Flash 播放器…')
+        setMessage(t('loadingBundledProjector'))
         const res = await fetch(BUNDLED_PROJECTOR_URL)
         if (!res.ok) {
-          throw new Error(`内置播放器加载失败（${res.status}）`)
+          throw new Error(t('bundledProjectorFailed', { status: res.status }))
         }
         projector = new Uint8Array(await res.arrayBuffer())
       }
 
       if (projector[0] !== 0x4d || projector[1] !== 0x5a) {
         setStatus('error')
-        setMessage('播放器文件似乎不是有效的 Windows 可执行程序（缺少 MZ 头）。')
+        setMessage(t('invalidProjector'))
         return
       }
 
-      // 3. 拼装 EXE
-      setMessage('正在打包…')
-      const blob = buildExe(projector, swf)
+      // 3. 拼装 EXE 并装入 ZIP 压缩包
+      setMessage(t('packing'))
+      const safeName = (outputName.trim() || 'flash-game').replace(
+        /\.(exe|zip)$/i,
+        ''
+      )
+      const exe = buildExe(projector, swf)
+      const blob = buildZip(`${safeName}.exe`, exe)
       const url = URL.createObjectURL(blob)
-      const safeName = (outputName.trim() || 'flash-game').replace(/\.exe$/i, '')
 
-      setResult({ url, name: `${safeName}.exe`, size: blob.size })
+      setResult({ url, name: `${safeName}.zip`, size: blob.size })
       setStatus('done')
-      setMessage('打包完成！')
+      setMessage(t('packDone'))
     } catch (err) {
       setStatus('error')
       setMessage(
-        err instanceof Error ? `打包出错：${err.message}` : '打包过程中发生未知错误。'
+        err instanceof Error
+          ? t('packError', { message: err.message })
+          : t('packUnknownError')
       )
     }
-  }, [swfFile, useCustomProjector, projectorFile, outputName])
+  }, [swfFile, useCustomProjector, projectorFile, outputName, t])
 
   const triggerDownload = () => {
     if (!result) return
@@ -175,7 +195,7 @@ export function SwfToExe() {
               1
             </span>
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              选择 SWF 文件
+              {t('step1')}
             </h2>
           </div>
 
@@ -213,7 +233,7 @@ export function SwfToExe() {
                   {swfFile.name}
                 </p>
                 <p className="text-xs font-light text-zinc-400">
-                  {formatBytes(swfFile.size)} · 点击可重新选择
+                  {formatBytes(swfFile.size)} · {t('reselectHint')}
                 </p>
               </div>
             ) : (
@@ -224,10 +244,10 @@ export function SwfToExe() {
                   </svg>
                 </span>
                 <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                  点击选择，或将 .swf 文件拖到这里
+                  {t('dropHint')}
                 </p>
                 <p className="text-xs font-light text-zinc-400">
-                  仅支持 Flash 的 .swf 格式
+                  {t('swfOnlyHint')}
                 </p>
               </div>
             )}
@@ -239,7 +259,7 @@ export function SwfToExe() {
               2
             </span>
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              输出文件名
+              {t('step2')}
             </h2>
           </div>
           <div className="mt-4 flex items-center overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50/50 focus-within:border-rose-300 dark:border-white/10 dark:bg-white/[0.02] dark:focus-within:border-rose-400/40">
@@ -251,7 +271,7 @@ export function SwfToExe() {
               className="w-full bg-transparent px-4 py-3 text-sm text-zinc-700 outline-none placeholder:text-zinc-400 dark:text-zinc-200"
             />
             <span className="select-none px-4 py-3 text-sm font-light text-zinc-400">
-              .exe
+              .zip
             </span>
           </div>
 
@@ -261,9 +281,9 @@ export function SwfToExe() {
               3
             </span>
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              播放器内核
+              {t('step3')}
               <span className="ml-1.5 text-xs font-light text-zinc-400">
-                （可选）
+                {t('optional')}
               </span>
             </h2>
           </div>
@@ -282,10 +302,10 @@ export function SwfToExe() {
               />
               <span>
                 <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  使用内置 Flash 播放器（推荐）
+                  {t('bundledLabel')}
                 </span>
                 <span className="mt-0.5 block text-xs font-light text-zinc-400">
-                  站点已内置一份干净的 Flash 独立播放器，开箱即用。
+                  {t('bundledDesc')}
                 </span>
               </span>
             </label>
@@ -303,10 +323,10 @@ export function SwfToExe() {
               />
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  使用自定义播放器
+                  {t('customLabel')}
                 </span>
                 <span className="mt-0.5 block text-xs font-light text-zinc-400">
-                  自备一份 Flash Player 独立播放器（projector）.exe。
+                  {t('customDesc')}
                 </span>
                 {useCustomProjector && (
                   <div className="mt-3">
@@ -331,7 +351,7 @@ export function SwfToExe() {
                       }}
                       className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-600 transition-colors hover:border-rose-300 hover:text-rose-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300"
                     >
-                      选择 .exe 播放器
+                      {t('chooseExe')}
                     </button>
                     {projectorFile && (
                       <span className="ml-2 text-xs font-light text-zinc-500">
@@ -362,14 +382,14 @@ export function SwfToExe() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                打包中…
+                {t('converting')}
               </>
             ) : (
               <>
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
                 </svg>
-                生成 EXE
+                {t('generateZip')}
               </>
             )}
           </button>
@@ -389,7 +409,7 @@ export function SwfToExe() {
         <div className="overflow-hidden rounded-3xl border border-black/[0.06] bg-white/80 shadow-[0_10px_40px_-24px_rgba(0,0,0,0.3)] backdrop-blur dark:border-white/[0.06] dark:bg-white/[0.03]">
           <div className="border-b border-black/[0.04] px-6 py-4 dark:border-white/[0.06]">
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-              成果
+              {t('resultTitle')}
             </h2>
           </div>
           <div className="px-6 py-8">
@@ -414,10 +434,10 @@ export function SwfToExe() {
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                   </svg>
-                  下载 EXE
+                  {t('downloadZip')}
                 </button>
                 <p className="mt-3 text-[11px] font-light leading-relaxed text-zinc-400">
-                  若浏览器拦截了下载，请在提示中选择「保留」。
+                  {t('unzipHint')}
                 </p>
               </div>
             ) : (
@@ -428,7 +448,7 @@ export function SwfToExe() {
                   </svg>
                 </span>
                 <p className="mt-4 text-sm font-light text-zinc-400">
-                  生成的 EXE 会出现在这里
+                  {t('emptyResult')}
                 </p>
               </div>
             )}
@@ -439,24 +459,60 @@ export function SwfToExe() {
         <div className="rounded-3xl border border-black/[0.06] bg-gradient-to-b from-sky-50/60 to-white p-6 dark:border-white/[0.06] dark:from-sky-500/[0.04] dark:to-transparent">
           <h3 className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-sky-400" />
-            使用须知
+            {t('notesTitle')}
           </h3>
           <ul className="mt-4 space-y-3 text-xs font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
             <li className="flex gap-2">
               <span className="text-sky-400">·</span>
-              生成的程序是 <b className="font-medium text-zinc-600 dark:text-zinc-300">Windows 可执行文件</b>，仅能在 Windows 上运行。
+              <span>
+                {t.rich('note1Rich', {
+                  b: (chunks) => (
+                    <b className="font-medium text-zinc-600 dark:text-zinc-300">
+                      {chunks}
+                    </b>
+                  ),
+                })}
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="text-sky-400">·</span>
-              全程在浏览器本地完成，<b className="font-medium text-zinc-600 dark:text-zinc-300">文件不会上传服务器</b>，请放心。
+              <span>
+                {t.rich('note2Rich', {
+                  b: (chunks) => (
+                    <b className="font-medium text-zinc-600 dark:text-zinc-300">
+                      {chunks}
+                    </b>
+                  ),
+                })}
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="text-sky-400">·</span>
-              成品已内嵌 Flash 播放器，双击即可运行，<b className="font-medium text-zinc-600 dark:text-zinc-300">无需安装 Flash</b>。
+              <span>
+                {t.rich('note3Rich', {
+                  b: (chunks) => (
+                    <b className="font-medium text-zinc-600 dark:text-zinc-300">
+                      {chunks}
+                    </b>
+                  ),
+                })}
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="text-sky-400">·</span>
-              首次运行若被杀毒软件 / SmartScreen 拦截，选择「仍要运行」即可（这是自解压程序的常见误报）。
+              <span>
+                {t.rich('note4Rich', {
+                  b: (chunks) => (
+                    <b className="font-medium text-zinc-600 dark:text-zinc-300">
+                      {chunks}
+                    </b>
+                  ),
+                })}
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-sky-400">·</span>
+              {t('note5')}
             </li>
           </ul>
         </div>
@@ -465,14 +521,16 @@ export function SwfToExe() {
         <div className="rounded-3xl border border-black/[0.06] bg-white/60 p-6 dark:border-white/[0.06] dark:bg-white/[0.02]">
           <h3 className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-rose-400" />
-            原理
+            {t('principleTitle')}
           </h3>
           <p className="mt-4 text-xs font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Flash 独立播放器（projector）会在自身文件末尾寻找一段特殊页脚。工具把你的 SWF 追加到播放器之后，并写入{' '}
-            <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
-              0xFA123456
-            </code>{' '}
-            魔数与文件长度。播放器启动时读到这段页脚，就会加载并播放内嵌的 SWF。
+            {t.rich('principleRich', {
+              code: (chunks) => (
+                <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
+                  {chunks}
+                </code>
+              ),
+            })}
           </p>
         </div>
       </div>

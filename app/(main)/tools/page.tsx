@@ -1,28 +1,33 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 import { Container } from '~/components/ui/Container'
 import { accentStyles, tools } from '~/config/tools'
 
-const title = '工具库'
-const description =
-  '一处安静的小工具收纳所。把日常会用到的实用小工具，收拢在同一片留白之中。'
-
-export const metadata = {
-  title,
-  description,
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('tools')
+  const title = t('title')
+  const description = t('description')
+  return {
     title,
     description,
-  },
-  twitter: {
-    title,
-    description,
-    card: 'summary_large_image',
-  },
-} satisfies Metadata
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+      card: 'summary_large_image',
+    },
+  }
+}
 
-export default function ToolsPage() {
+export default async function ToolsPage() {
+  const t = await getTranslations('tools')
+  const locale = await getLocale()
+  const isZh = locale === 'zh'
   return (
     <Container className="mt-16 sm:mt-32">
       {/* ============ 日系风格头图 · 和纸留白 ============ */}
@@ -35,21 +40,22 @@ export default function ToolsPage() {
         <div className="relative px-6 py-16 sm:px-14 sm:py-24">
           <span className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white/70 px-4 py-1.5 text-xs font-medium tracking-[0.2em] text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-zinc-400">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-rose-400/80" />
-            道具箱 · TOOLBOX
+            {t('badge')}
           </span>
 
           <h1 className="mt-7 text-4xl font-semibold tracking-tight text-zinc-800 sm:text-6xl dark:text-zinc-100">
-            工具库
+            {t('title')}
           </h1>
           <p className="mt-3 text-sm font-light tracking-[0.35em] text-zinc-400 dark:text-zinc-500">
             みんなの道具箱
           </p>
 
           <p className="mt-8 max-w-xl text-base font-light leading-loose text-zinc-500 dark:text-zinc-400">
-            一处安静的小工具收纳所。<br className="hidden sm:block" />
-            把日常会用到的实用小工具，收拢在同一片留白之中，
+            {t('introLine1')}
             <br className="hidden sm:block" />
-            用起来，就像取用书桌上顺手的一支笔。
+            {t('introLine2')}
+            <br className="hidden sm:block" />
+            {t('introLine3')}
           </p>
         </div>
       </div>
@@ -58,10 +64,10 @@ export default function ToolsPage() {
       <div className="mt-12">
         <div className="mb-6 flex items-baseline justify-between">
           <h2 className="text-lg font-medium text-zinc-700 dark:text-zinc-200">
-            全部工具
+            {t('allTools')}
           </h2>
           <span className="text-xs font-light tracking-widest text-zinc-400">
-            {tools.length} 件 · 持续添置中
+            {t('countStatus', { count: tools.length })}
           </span>
         </div>
 
@@ -104,11 +110,11 @@ export default function ToolsPage() {
                     {tool.available ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        可用
+                        {t('available')}
                       </span>
                     ) : (
                       <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-400 dark:bg-white/5">
-                        筹备中
+                        {t('comingSoon')}
                       </span>
                     )}
                   </div>
@@ -119,14 +125,14 @@ export default function ToolsPage() {
                     {tool.nameJa}
                   </p>
                   <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-zinc-800 dark:text-zinc-100">
-                    {tool.name}
+                    {isZh ? tool.name : tool.nameEn}
                   </h3>
                   <p className="mt-3 flex-1 text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                    {tool.description}
+                    {isZh ? tool.description : tool.descriptionEn}
                   </p>
 
                   <div className="mt-6 flex items-center gap-1.5 text-sm font-medium text-zinc-400 transition-colors group-hover:text-zinc-700 dark:group-hover:text-zinc-200">
-                    {tool.available ? '开始使用' : '敬请期待'}
+                    {tool.available ? t('startUsing') : t('stayTuned')}
                     {tool.available && (
                       <svg
                         className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"

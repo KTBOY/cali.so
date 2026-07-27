@@ -1,27 +1,32 @@
 import { type Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
 import { WallpaperWall } from '~/app/(main)/bz/WallpaperWall'
 import { Container } from '~/components/ui/Container'
 
-const title = '壁纸中心'
-const description =
-  '一处安静的壁纸收纳所。把喜欢的二次元与动漫壁纸，收拢在同一片留白之中。'
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('wallpaper')
+  const title = t('title')
+  const description = t('description')
 
-export const metadata = {
-  title,
-  description,
-  openGraph: {
+  return {
     title,
     description,
-  },
-  twitter: {
-    title,
-    description,
-    card: 'summary_large_image',
-  },
-} satisfies Metadata
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+      card: 'summary_large_image',
+    },
+  }
+}
 
-export default function WallpaperPage() {
+export default async function WallpaperPage() {
+  const t = await getTranslations('wallpaper')
+
   return (
     <Container className="mt-16 sm:mt-32">
       {/* ============ 日系风格头图 · 和纸留白 ============ */}
@@ -34,21 +39,22 @@ export default function WallpaperPage() {
         <div className="relative px-6 py-16 sm:px-14 sm:py-24">
           <span className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white/70 px-4 py-1.5 text-xs font-medium tracking-[0.2em] text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-zinc-400">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-sky-400/80" />
-            壁纸箱 · WALLPAPER
+            {t('badge')}
           </span>
 
           <h1 className="mt-7 text-4xl font-semibold tracking-tight text-zinc-800 sm:text-6xl dark:text-zinc-100">
-            壁纸中心
+            {t('title')}
           </h1>
           <p className="mt-3 text-sm font-light tracking-[0.35em] text-zinc-400 dark:text-zinc-500">
             きせかえの小部屋
           </p>
 
           <p className="mt-8 max-w-xl text-base font-light leading-loose text-zinc-500 dark:text-zinc-400">
-            一处安静的壁纸收纳所。<br className="hidden sm:block" />
-            把喜欢的二次元与动漫壁纸，收拢在同一片留白之中，
+            {t('introLine1')}
             <br className="hidden sm:block" />
-            向下滚动，每一页都是新的邂逅。
+            {t('introLine2')}
+            <br className="hidden sm:block" />
+            {t('introLine3')}
           </p>
         </div>
       </div>

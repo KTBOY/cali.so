@@ -1,21 +1,25 @@
 import { type Metadata } from 'next'
+import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import { SectionHeading, WcShell } from '../_components/ui'
 import { getOfficials } from '../_lib/data'
 import { type OfficialPerson } from '../_lib/types'
 
-const title = '教练与裁判 · 世界杯历史'
-const description =
-  '执教场次最多的名帅与执法场次最多的名哨:世界杯赛场上的另一群主角。'
-
-export const metadata = {
-  title,
-  description,
-  openGraph: { title, description },
-  twitter: { title, description, card: 'summary_large_image' },
-} satisfies Metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('worldCup')
+  const title = `${t('officials.title')} · ${t('title')}`
+  const description = t('officials.metaDescription')
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description, card: 'summary_large_image' },
+  }
+}
 
 function PeopleList({ people }: { people: OfficialPerson[] }) {
+  const t = useTranslations('worldCup.officials')
   return (
     <ul className="mt-4">
       {people.map((p, i) => (
@@ -31,7 +35,7 @@ function PeopleList({ people }: { people: OfficialPerson[] }) {
             <span className="ml-2 text-xs text-neutral-400">{p.country}</span>
           </span>
           <span className="shrink-0 text-right text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
-            {p.matches} 场 · {p.tournaments} 届
+            {t('personMeta', { matches: p.matches, tournaments: p.tournaments })}
           </span>
         </li>
       ))}
@@ -40,6 +44,7 @@ function PeopleList({ people }: { people: OfficialPerson[] }) {
 }
 
 export default function OfficialsPage() {
+  const t = useTranslations('worldCup.officials')
   const { managers, referees } = getOfficials()
   return (
     <WcShell>
@@ -48,18 +53,17 @@ export default function OfficialsPage() {
           MANAGERS &amp; REFEREES
         </p>
         <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight text-neutral-900 dark:text-neutral-100">
-          教练与裁判
+          {t('title')}
         </h1>
         <p className="mt-4 text-sm font-light leading-loose text-neutral-600 dark:text-neutral-400">
-          共 {managers.total} 位主帅与 {referees.total} 位主裁执掌过世界杯。以下是执教 /
-          执法场次最多的名字。
+          {t('intro', { managers: managers.total, referees: referees.total })}
         </p>
       </header>
 
-      <SectionHeading note="执教场次">名帅</SectionHeading>
+      <SectionHeading note={t('managersNote')}>{t('managers')}</SectionHeading>
       <PeopleList people={managers.top} />
 
-      <SectionHeading note="执法场次">名哨</SectionHeading>
+      <SectionHeading note={t('refereesNote')}>{t('referees')}</SectionHeading>
       <PeopleList people={referees.top} />
     </WcShell>
   )

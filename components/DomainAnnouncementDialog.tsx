@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
 import { BookmarkIcon, ExternalLinkIcon, SparkleIcon } from '~/assets'
@@ -12,6 +13,7 @@ const NEW_DOMAIN_ICON = 'http://localhost:3000'
 const NEW_DOMAIN_TITLE = 'PS521 - 珊瑚打码'
 
 export function DomainAnnouncementDialog() {
+  const t = useTranslations('announcement')
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -68,7 +70,7 @@ export function DomainAnnouncementDialog() {
     }
 
     // Chrome / Edge / Safari / 现代 Firefox: 提示用户使用快捷键
-    alert(`当前浏览器不支持自动收藏，请按 ${hotkey} 手动添加书签`)
+    alert(t('manualBookmark', { hotkey }))
   }
 
   const handleVisit = () => {
@@ -83,17 +85,17 @@ export function DomainAnnouncementDialog() {
         <Dialog.Header>
           <div className="flex items-center gap-2">
             <SparkleIcon className="h-6 w-6 text-teal-500" />
-            <Dialog.Title className="text-xl">新域名上线公告</Dialog.Title>
+            <Dialog.Title className="text-xl">{t('title')}</Dialog.Title>
           </div>
           <Dialog.Description>
-            我们已启用全新域名，请收藏新地址以防失联，旧域名即将失效。
+            {t('description')}
           </Dialog.Description>
         </Dialog.Header>
 
         {/* 域名展示卡片 */}
         <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
           <p className="mb-1 text-xs text-zinc-500 dark:text-zinc-400">
-            新域名
+            {t('newDomain')}
           </p>
           <a
             href={NEW_DOMAIN}
@@ -105,7 +107,7 @@ export function DomainAnnouncementDialog() {
             <ExternalLinkIcon className="h-4 w-4" />
           </a>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-            请将新域名加入收藏夹，旧域名可能随时失效。
+            {t('bookmarkTip')}
           </p>
         </div>
 
@@ -117,7 +119,7 @@ export function DomainAnnouncementDialog() {
             onClick={handleAddBookmark}
           >
             <BookmarkIcon className="h-4 w-4" />
-            一键收藏
+            {t('addBookmark')}
           </Button>
           <Button
             variant="secondary"
@@ -125,7 +127,7 @@ export function DomainAnnouncementDialog() {
             onClick={handleVisit}
           >
             <ExternalLinkIcon className="h-4 w-4" />
-            立即访问
+            {t('visitNow')}
           </Button>
         </Dialog.Footer>
 

@@ -1,4 +1,5 @@
 import { clsxm } from '@zolplay/utils'
+import { useTranslations } from 'next-intl'
 
 import {
   type MatchBooking,
@@ -26,6 +27,7 @@ export function MatchTimeline({
   subs: MatchSub[]
   extraTime: boolean
 }) {
+  const t = useTranslations('worldCup.match')
   const maxMin = extraTime ? 120 : 90
   const events: TimelineEvent[] = [
     ...goals.map((g): TimelineEvent => ({ kind: 'goal', minute: g.minute, side: g.side, own: g.own })),
@@ -83,18 +85,22 @@ export function MatchTimeline({
       </div>
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-neutral-400">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-blue-700" />进球
+          <span className="inline-block h-2 w-2 rounded-full bg-blue-700" />
+          {t('legendGoal')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-1.5 rounded-sm bg-amber-400" />黄牌
+          <span className="inline-block h-2.5 w-1.5 rounded-sm bg-amber-400" />
+          {t('legendYellow')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-1.5 rounded-sm bg-red-600" />红牌
+          <span className="inline-block h-2.5 w-1.5 rounded-sm bg-red-600" />
+          {t('legendRed')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rotate-45 bg-emerald-500" />换人
+          <span className="inline-block h-2 w-2 rotate-45 bg-emerald-500" />
+          {t('legendSub')}
         </span>
-        <span>· 上排主队 / 下排客队</span>
+        <span>{t('legendRows')}</span>
       </div>
     </div>
   )

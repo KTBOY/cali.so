@@ -1,9 +1,12 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 import { Scoreline, SectionHeading, Stat, StatGrid, TeamChip, WcShell } from '../../_components/ui'
-import { getAllYears, getTournament } from '../../_lib/data'
+import { getAllYears, getTeams, getTournament } from '../../_lib/data'
+import { isZhLocale, stageName, teamName } from '../../_lib/i18n'
 import { matchHref, playerHref, teamHref } from '../../_lib/nav'
 
 export const dynamicParams = false
@@ -12,26 +15,32 @@ export function generateStaticParams() {
   return getAllYears().map((year) => ({ year: String(year) }))
 }
 
-const POSITION_ZH: Record<number, string> = { 1: '冠军', 2: '亚军', 3: '季军', 4: '殿军' }
-
 function load(yearParam: string) {
   const year = Number(yearParam)
   if (!getAllYears().includes(year)) return null
   return getTournament(year)
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { year: string }
-}): Metadata {
+}): Promise<Metadata> {
   const t = load(params.year)
-  if (!t) return { title: '未找到 · 世界杯历史' }
-  const champion = t.standings.find((s) => s.position === 1)?.nameZh ?? ''
-  const title = `${t.year} 年世界杯 · 世界杯历史`
-  const description = `${t.year} 年 FIFA 世界杯：主办 ${t.hosts
-    .map((h) => h.nameZh)
-    .join('、')}，冠军 ${champion}，${t.teams} 队 / ${t.matchesCount} 场 / ${t.goalsCount} 球。`
+  const tw = await getTranslations('worldCup')
+  if (!t) return { title: `${tw('notFound')} · ${tw('title')}` }
+  const locale = await getLocale()
+  const isZh = isZhLocale(locale)
+  const champion = t.standings.find((s) => s.position === 1)
+  const title = `${tw('detail.metaTitle', { year: t.year })} · ${tw('title')}`
+  const description = tw('detail.metaDescription', {
+    year: t.year,
+    hosts: t.hosts.map((h) => teamName(h, locale)).join(isZh ? '、' : ', '),
+    champion: champion ? teamName(champion, locale) : '—',
+    teams: t.teams,
+    matches: t.matchesCount,
+    goals: t.goalsCount,
+  })
   return {
     title,
     description,
@@ -45,10 +54,16 @@ export default function TournamentDetailPage({
 }: {
   params: { year: string }
 }) {
+  const td = useTranslations('worldCup.detail')
+  const locale = useLocale()
+  const isZh = isZhLocale(locale)
   const t = load(params.year)
   if (!t) notFound()
 
   const champion = t.standings.find((s) => s.position === 1)
+  // 射手榜与奖项里的 team 只有中文名,英文界面用映射还原
+  const teamEnByZh = new Map(getTeams().map((tm) => [tm.nameZh, tm.nameEn]))
+  const localTeam = (zh: string) => (isZh ? zh : teamEnByZh.get(zh) ?? zh)
 
   return (
     <WcShell>
@@ -62,22 +77,22 @@ export default function TournamentDetailPage({
             {t.year}
           </span>
           <span className="text-lg font-normal text-neutral-500 dark:text-neutral-400">
-            FIFA 世界杯
+            {td('fifaWorldCup')}
           </span>
         </h1>
         <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-          <span className="text-neutral-400">主办</span>
+          <span className="text-neutral-400">{td('hostedBy')}</span>
           {t.hosts.map((h) => (
             <TeamChip key={h.teamId} team={h} />
           ))}
           {t.hostWon ? (
             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">
-              东道主夺冠
+              {td('hostWon')}
             </span>
           ) : null}
           {champion ? (
             <>
-              <span className="ml-2 text-neutral-400">冠军</span>
+              <span className="ml-2 text-neutral-400">{td('champion')}</span>
               <TeamChip team={champion} href={teamHref(champion.slug)} />
             </>
           ) : null}
@@ -86,11 +101,11 @@ export default function TournamentDetailPage({
 
       <div className="mt-8">
         <StatGrid>
-          <Stat label="参赛队" value={t.teams} />
-          <Stat label="场比赛" value={t.matchesCount} />
-          <Stat label="粒进球" value={t.goalsCount} />
+          <Stat label={td('statTeams')} value={t.teams} />
+          <Stat label={td('statMatches')} value={t.matchesCount} />
+          <Stat label={td('statGoals')} value={t.goalsCount} />
           <Stat
-            label="场均进球"
+            label={td('statGpm')}
             value={t.matchesCount ? (t.goalsCount / t.matchesCount).toFixed(2) : '—'}
           />
         </StatGrid>
@@ -99,12 +114,14 @@ export default function TournamentDetailPage({
       {/* 最终排名 */}
       {t.standings.length > 0 ? (
         <>
-          <SectionHeading note="前四名">最终排名</SectionHeading>
+          <SectionHeading note={td('standingsNote')}>{td('standings')}</SectionHeading>
           <ul className="space-y-1.5">
             {t.standings.map((s) => (
               <li key={s.teamId} className="flex items-center gap-3 text-sm">
                 <span className="w-10 shrink-0 text-xs text-neutral-400">
-                  {POSITION_ZH[s.position] ?? `第 ${s.position}`}
+                  {s.position <= 4
+                    ? td(`pos${s.position}`)
+                    : td('posOther', { position: s.position })}
                 </span>
                 <TeamChip team={s} href={teamHref(s.slug)} />
               </li>
@@ -116,7 +133,7 @@ export default function TournamentDetailPage({
       {/* 射手榜 */}
       {t.topScorers.length > 0 ? (
         <>
-          <SectionHeading note="进球数">射手榜</SectionHeading>
+          <SectionHeading note={td('topScorersNote')}>{td('topScorers')}</SectionHeading>
           <ul className="space-y-1.5">
             {t.topScorers.map((p) => (
               <li key={p.playerId} className="flex items-baseline gap-3 text-sm">
@@ -129,7 +146,7 @@ export default function TournamentDetailPage({
                 >
                   {p.name}
                 </Link>
-                <span className="text-xs text-neutral-400">{p.team}</span>
+                <span className="text-xs text-neutral-400">{localTeam(p.team)}</span>
               </li>
             ))}
           </ul>
@@ -139,7 +156,7 @@ export default function TournamentDetailPage({
       {/* 小组赛积分 */}
       {t.groups.length > 0 ? (
         <>
-          <SectionHeading note="最终积分">小组赛</SectionHeading>
+          <SectionHeading note={td('groupStageNote')}>{td('groupStage')}</SectionHeading>
           <div className="space-y-6">
             {t.groups.map((g) => (
               <div key={g.group}>
@@ -149,12 +166,12 @@ export default function TournamentDetailPage({
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-200 text-[11px] text-neutral-400 dark:border-neutral-800">
-                      <th className="py-1 text-left font-normal">球队</th>
-                      <th className="py-1 text-right font-normal">胜</th>
-                      <th className="py-1 text-right font-normal">平</th>
-                      <th className="py-1 text-right font-normal">负</th>
-                      <th className="py-1 text-right font-normal">净</th>
-                      <th className="py-1 text-right font-normal">分</th>
+                      <th className="py-1 text-left font-normal">{td('thTeam')}</th>
+                      <th className="py-1 text-right font-normal">{td('thW')}</th>
+                      <th className="py-1 text-right font-normal">{td('thD')}</th>
+                      <th className="py-1 text-right font-normal">{td('thL')}</th>
+                      <th className="py-1 text-right font-normal">{td('thGd')}</th>
+                      <th className="py-1 text-right font-normal">{td('thPts')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -196,12 +213,14 @@ export default function TournamentDetailPage({
       ) : null}
 
       {/* 赛程（按阶段） */}
-      <SectionHeading note={`${t.matchesCount} 场`}>完整赛程</SectionHeading>
+      <SectionHeading note={td('scheduleNote', { count: t.matchesCount })}>
+        {td('schedule')}
+      </SectionHeading>
       <div className="space-y-6">
         {t.matchesByStage.map((sg) => (
           <div key={sg.stage}>
             <div className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-              {sg.stageZh}
+              {stageName(sg.stageZh, locale)}
             </div>
             <div>
               {sg.matches.map((m) => (
@@ -213,9 +232,9 @@ export default function TournamentDetailPage({
                   href={matchHref(m.matchId)}
                   meta={
                     m.penalties
-                      ? `点球 ${m.penalties}`
+                      ? td('penalties', { score: m.penalties })
                       : m.extraTime
-                        ? '加时赛'
+                        ? td('extraTime')
                         : undefined
                   }
                 />
@@ -228,13 +247,13 @@ export default function TournamentDetailPage({
       {/* 个人奖项 */}
       {t.awards.length > 0 ? (
         <>
-          <SectionHeading>个人奖项</SectionHeading>
+          <SectionHeading>{td('awards')}</SectionHeading>
           <ul className="space-y-1.5 text-sm">
             {t.awards.map((a, i) => (
               <li key={`${a.award}-${i}`} className="flex items-baseline gap-3">
                 <span className="w-24 shrink-0 text-xs text-neutral-400">{a.award}</span>
                 <span className="text-neutral-900 dark:text-neutral-100">{a.name}</span>
-                <span className="text-xs text-neutral-400">{a.team}</span>
+                <span className="text-xs text-neutral-400">{localTeam(a.team)}</span>
               </li>
             ))}
           </ul>
@@ -244,7 +263,9 @@ export default function TournamentDetailPage({
       {/* 球场 */}
       {t.stadiums.length > 0 ? (
         <>
-          <SectionHeading note={`${t.stadiums.length} 座`}>比赛球场</SectionHeading>
+          <SectionHeading note={td('venuesNote', { count: t.stadiums.length })}>
+            {td('venues')}
+          </SectionHeading>
           <p className="text-sm font-light leading-loose text-neutral-600 dark:text-neutral-400">
             {t.stadiums.join(' · ')}
           </p>

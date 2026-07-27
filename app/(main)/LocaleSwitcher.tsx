@@ -1,43 +1,27 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
-import { useTheme } from 'next-themes'
+import { useRouter } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
 import React from 'react'
 
-import { LightningIcon, MoonIcon, SunIcon } from '~/assets'
 import { Tooltip } from '~/components/ui/Tooltip'
+import { type Locale } from '~/i18n/config'
+import { setUserLocale } from '~/i18n/locale'
 
-const themes = [
-  {
-    label: 'light',
-    value: 'light',
-    icon: SunIcon,
-  },
-  {
-    label: 'dark',
-    value: 'dark',
-    icon: MoonIcon,
-  },
-]
-export function ThemeSwitcher() {
-  const t = useTranslations('theme')
-  const [mounted, setMounted] = React.useState(false)
+export function LocaleSwitcher() {
+  const locale = useLocale()
+  const t = useTranslations('locale')
+  const router = useRouter()
   const [open, setOpen] = React.useState(false)
-  const { setTheme, theme, resolvedTheme } = useTheme()
-  const ThemeIcon = React.useMemo(
-    () => themes.find((t) => t.value === theme)?.icon ?? LightningIcon,
-    [theme]
-  )
+  const [isPending, startTransition] = React.useTransition()
 
-  React.useEffect(() => setMounted(true), [])
-
-  function toggleTheme() {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }
-
-  if (!mounted) {
-    return null
+  function toggleLocale() {
+    const next: Locale = locale === 'zh' ? 'en' : 'zh'
+    startTransition(async () => {
+      await setUserLocale(next)
+      router.refresh()
+    })
   }
 
   return (
@@ -47,13 +31,16 @@ export function ThemeSwitcher() {
           <button
             type="button"
             aria-label={t('toggle')}
+            disabled={isPending}
             className="group rounded-full bg-gradient-to-b from-zinc-50/50 to-white/90 px-3 py-2 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur transition dark:from-zinc-900/50 dark:to-zinc-800/90 dark:ring-white/10 dark:hover:ring-white/20"
-            onClick={toggleTheme}
+            onClick={toggleLocale}
           >
-            <ThemeIcon className="h-6 w-6 stroke-zinc-500 p-0.5 transition group-hover:stroke-zinc-700 dark:group-hover:stroke-zinc-200" />
+            <span className="flex h-6 w-6 items-center justify-center text-sm font-medium text-zinc-500 transition group-hover:text-zinc-700 dark:group-hover:text-zinc-200">
+              {locale === 'zh' ? '中' : 'EN'}
+            </span>
           </button>
         </Tooltip.Trigger>
-        
+
         <AnimatePresence>
           {open && (
             <Tooltip.Portal forceMount>
@@ -63,10 +50,7 @@ export function ThemeSwitcher() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
-                  {(() => {
-                    const current = themes.find((x) => x.value === theme)
-                    return current ? t(current.label) : t('system')
-                  })()}
+                  {t('toggle')}
                 </motion.div>
               </Tooltip.Content>
             </Tooltip.Portal>

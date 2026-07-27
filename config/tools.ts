@@ -9,10 +9,14 @@ export type ToolItem = {
   slug: string
   /** 中文名称 */
   name: string
+  /** 英文名称 */
+  nameEn: string
   /** 日文点缀（用于视觉标签） */
   nameJa: string
   /** 一句话简介 */
   description: string
+  /** 一句话简介（英文） */
+  descriptionEn: string
   /** 是否已上线 */
   available: boolean
   /** 主题色调（日系柔和色），用于卡片装饰 */
@@ -23,27 +27,36 @@ export const tools: ToolItem[] = [
   {
     slug: 'swf-to-exe',
     name: 'SWF 转 EXE',
+    nameEn: 'SWF to EXE',
     nameJa: 'フラッシュ変換',
     description:
       '将 Flash 动画 / 游戏（.swf）打包成可独立运行的 Windows 播放器（.exe），无需安装 Flash Player。',
+    descriptionEn:
+      'Package a Flash animation / game (.swf) into a standalone Windows player (.exe) — no Flash Player installation needed.',
     available: true,
     accent: 'sakura',
   },
   {
     slug: 'gif-compress',
     name: 'GIF 压缩',
+    nameEn: 'GIF Compressor',
     nameJa: 'GIF圧縮',
     description:
       '在浏览器本地压缩 GIF 动图：自动逐级尝试「缩放 + 抽帧 + 调色板量化（带抖动）」组合，取第一个满足目标体积且质量最高的方案，播放总时长保持不变。',
+    descriptionEn:
+      'Compress GIFs locally in your browser: automatically steps through scale + frame-skipping + palette quantization (with dithering) combos and picks the first plan that meets the target size with the highest quality, keeping total duration unchanged.',
     available: true,
     accent: 'matcha',
   },
   {
     slug: 'world-cup-history',
     name: '世界杯历史',
+    nameEn: 'World Cup History',
     nameJa: 'ワールドカップ',
     description:
       '男足世界杯历史数据库（1930–2022）：22 届赛事、964 场比赛、2720 粒进球的编辑型档案，逐届可查赛程、小组积分、射手与奖项。',
+    descriptionEn:
+      'A curated FIFA World Cup archive (1930–2022): 22 tournaments, 964 matches and 2,720 goals — browse fixtures, group tables, scorers and awards by edition.',
     available: true,
     accent: 'sky',
   },

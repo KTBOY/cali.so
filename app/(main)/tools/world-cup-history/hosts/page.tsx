@@ -1,55 +1,49 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import { SectionHeading, Stat, StatGrid, TeamChip, WcShell } from '../_components/ui'
 import { getHosts } from '../_lib/data'
+import { perfName } from '../_lib/i18n'
 import { teamHref, tournamentHref } from '../_lib/nav'
 
-const PERF_ZH: Record<string, string> = {
-  final: '决赛',
-  'third-place match': '季军战',
-  'third place match': '季军战',
-  'semi-finals': '半决赛',
-  'quarter-finals': '八强',
-  'round of 16': '16 强',
-  'round of sixteen': '16 强',
-  'group stage': '小组赛',
-  'second group stage': '复赛小组',
-  'final round': '决赛圈',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('worldCup')
+  const title = `${t('hosts.title')} · ${t('title')}`
+  const description = t('hosts.metaDescription')
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description, card: 'summary_large_image' },
+  }
 }
 
-const title = '主办国 · 世界杯历史'
-const description = '历届世界杯主办国及其成绩,以及"东道主夺冠"发生过的年份。'
-
-export const metadata = {
-  title,
-  description,
-  openGraph: { title, description },
-  twitter: { title, description, card: 'summary_large_image' },
-} satisfies Metadata
-
 export default function HostsPage() {
+  const t = useTranslations('worldCup.hosts')
+  const locale = useLocale()
   const { hosts, hostWins } = getHosts()
   return (
     <WcShell>
       <header>
         <p className="text-xs tracking-[0.3em] text-neutral-400">HOSTS</p>
         <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight text-neutral-900 dark:text-neutral-100">
-          主办国
+          {t('title')}
         </h1>
         <p className="mt-4 text-sm font-light leading-loose text-neutral-600 dark:text-neutral-400">
-          谁在自家门口举办过世界杯,又踢出了怎样的成绩。东道主是否更容易夺冠?数据在此。
+          {t('intro')}
         </p>
       </header>
 
       <div className="mt-8">
         <StatGrid>
-          <Stat label="主办国·次" value={hosts.length} />
-          <Stat label="东道主夺冠" value={hostWins.length} />
+          <Stat label={t('statHostings')} value={hosts.length} />
+          <Stat label={t('statHostWins')} value={hostWins.length} />
         </StatGrid>
       </div>
 
-      <SectionHeading note="历届">主办与成绩</SectionHeading>
+      <SectionHeading note={t('sectionNote')}>{t('section')}</SectionHeading>
       <ul>
         {hosts.map((h) => (
           <li key={`${h.year}-${h.teamId}`}>
@@ -64,11 +58,11 @@ export default function HostsPage() {
                 <TeamChip team={h} href={teamHref(h.slug)} />
               </span>
               <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
-                {PERF_ZH[h.performance] ?? h.performance}
+                {perfName(h.performance, locale)}
               </span>
               {h.hostWon ? (
                 <span className="shrink-0 rounded-full bg-orange-50 px-2 py-0.5 text-[11px] text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">
-                  夺冠
+                  {t('wonBadge')}
                 </span>
               ) : null}
             </div>
@@ -76,7 +70,9 @@ export default function HostsPage() {
         ))}
       </ul>
 
-      <SectionHeading note={`${hostWins.length} 次`}>东道主夺冠</SectionHeading>
+      <SectionHeading note={t('hostWinsNote', { count: hostWins.length })}>
+        {t('hostWins')}
+      </SectionHeading>
       <ul className="space-y-1.5 text-sm">
         {hostWins.map((h) => (
           <li key={`${h.year}-${h.teamId}`} className="flex items-center gap-3">

@@ -3,10 +3,12 @@
 import Spline from '@splinetool/react-spline'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 import { url } from '~/lib'
 
 export default function NotFoundPage() {
+  const t = useTranslations('common')
   return (
     <main className="h-screen">
       <div className="absolute inset-0 h-full w-full">
@@ -26,7 +28,7 @@ export default function NotFoundPage() {
           href="/"
           className="pointer-events-auto select-none text-xl font-bold text-white mix-blend-difference hover:underline"
         >
-          返回主页
+          {t('backHome')}
         </Link>
       </div>
     </main>

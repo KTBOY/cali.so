@@ -1,5 +1,7 @@
 import { count, isNotNull } from 'drizzle-orm'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { CursorClickIcon, UsersIcon } from '~/assets'
@@ -33,11 +35,13 @@ function NavLink({
 }
 
 function Links() {
+  const t = useTranslations('nav')
+
   return (
     <nav className="flex gap-6 text-sm font-medium text-zinc-800 dark:text-zinc-200">
       {navigationItems.map(({ href, text }) => (
         <NavLink key={href} href={href}>
-          {text}
+          {t(text)}
         </NavLink>
       ))}
     </nav>
@@ -45,6 +49,7 @@ function Links() {
 }
 
 async function TotalPageViews() {
+  const t = await getTranslations('footer')
   let views: number
   if (env.VERCEL_ENV === 'production') {
     views = await redis.incr(kvKeys.totalPageViews)
@@ -55,8 +60,12 @@ async function TotalPageViews() {
   return (
     <span className="flex items-center justify-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 md:justify-start">
       <UsersIcon className="h-4 w-4" />
-      <span title={`${Intl.NumberFormat('en-US').format(views)}次浏览`}>
-        总浏览量&nbsp;
+      <span
+        title={t('viewsTitle', {
+          views: Intl.NumberFormat('en-US').format(views),
+        })}
+      >
+        {t('totalViews')}&nbsp;
         <span className="font-medium">{prettifyNumber(views, true)}</span>
       </span>
     </span>
@@ -69,6 +78,7 @@ type VisitorGeolocation = {
   flag: string
 }
 async function LastVisitorInfo() {
+  const t = await getTranslations('footer')
   let lastVisitor: VisitorGeolocation | undefined = undefined
   if (env.VERCEL_ENV === 'production') {
     const [lv, cv] = await redis.mget<VisitorGeolocation[]>(
@@ -90,7 +100,7 @@ async function LastVisitorInfo() {
     <span className="flex items-center justify-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 md:justify-start">
       <CursorClickIcon className="h-4 w-4" />
       <span>
-        最近访客来自&nbsp;
+        {t('lastVisitorFrom')}&nbsp;
         {[lastVisitor.city, lastVisitor.country].filter(Boolean).join(', ')}
       </span>
       <span className="font-medium">{lastVisitor.flag}</span>

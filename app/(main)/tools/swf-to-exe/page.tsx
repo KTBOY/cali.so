@@ -1,28 +1,32 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
 import { SwfToExe } from '~/app/(main)/tools/swf-to-exe/SwfToExe'
 import { Container } from '~/components/ui/Container'
 
-const title = 'SWF 转 EXE · 工具库'
-const description =
-  '在浏览器里把 Flash 动画 / 游戏（.swf）打包成可独立运行的 Windows 播放器（.exe）。文件不上传服务器，全程本地完成。'
-
-export const metadata = {
-  title,
-  description,
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('swfToExe')
+  const title = t('title')
+  const description = t('description')
+  return {
     title,
     description,
-  },
-  twitter: {
-    title,
-    description,
-    card: 'summary_large_image',
-  },
-} satisfies Metadata
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+      card: 'summary_large_image',
+    },
+  }
+}
 
-export default function SwfToExePage() {
+export default async function SwfToExePage() {
+  const t = await getTranslations('swfToExe')
+  const tTools = await getTranslations('tools')
   return (
     <Container className="mt-16 sm:mt-32">
       {/* 面包屑 */}
@@ -31,10 +35,10 @@ export default function SwfToExePage() {
           href="/tools"
           className="transition-colors hover:text-zinc-600 dark:hover:text-zinc-200"
         >
-          工具库
+          {tTools('title')}
         </Link>
         <span className="text-zinc-300 dark:text-zinc-600">/</span>
-        <span className="text-zinc-600 dark:text-zinc-300">SWF 转 EXE</span>
+        <span className="text-zinc-600 dark:text-zinc-300">{t('heading')}</span>
       </nav>
 
       {/* 页面标题 · 日系留白 */}
@@ -47,14 +51,16 @@ export default function SwfToExePage() {
             フラッシュ変換
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
-            SWF 转 EXE
+            {t('heading')}
           </h1>
           <p className="mt-6 max-w-2xl text-base font-light leading-loose text-zinc-500 dark:text-zinc-400">
-            上传一个 <b className="font-medium text-zinc-700 dark:text-zinc-200">.swf</b>{' '}
-            文件，将它与 Flash 独立播放器打包成一个可以双击运行的{' '}
-            <b className="font-medium text-zinc-700 dark:text-zinc-200">.exe</b>{' '}
-            程序。整个过程在你的浏览器里本地完成，
-            <b className="font-medium text-zinc-700 dark:text-zinc-200">文件不会上传到任何服务器</b>。
+            {t.rich('introRich', {
+              b: (chunks) => (
+                <b className="font-medium text-zinc-700 dark:text-zinc-200">
+                  {chunks}
+                </b>
+              ),
+            })}
           </p>
         </div>
       </header>

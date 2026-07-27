@@ -3,12 +3,14 @@
 import { clsxm } from '@zolplay/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 import { WC_BASE, WC_NAV } from '../_lib/nav'
 
 /** 数据库内部横向子导航(可横向滚动),高亮当前分区。 */
 export function WorldCupNav() {
   const pathname = usePathname()
+  const t = useTranslations('worldCup')
   return (
     <nav className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <ul className="flex min-w-max items-center gap-1 border-b border-neutral-200 dark:border-neutral-800">
@@ -27,9 +29,9 @@ export function WorldCupNav() {
                     base,
                     'cursor-not-allowed text-neutral-300 dark:text-neutral-700'
                   )}
-                  title="即将上线"
+                  title={t('comingSoon')}
                 >
-                  {item.label}
+                  {t(`nav.${item.key}`)}
                 </span>
               </li>
             )
@@ -46,7 +48,7 @@ export function WorldCupNav() {
                     : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100'
                 )}
               >
-                {item.label}
+                {t(`nav.${item.key}`)}
               </Link>
             </li>
           )

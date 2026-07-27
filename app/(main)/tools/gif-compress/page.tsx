@@ -1,28 +1,32 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
 import { GifCompressor } from '~/app/(main)/tools/gif-compress/GifCompressor'
 import { Container } from '~/components/ui/Container'
 
-const title = 'GIF 压缩 · 工具库'
-const description =
-  '在浏览器里压缩 GIF 动图：自动逐级尝试「缩放 + 抽帧 + 调色板量化（带抖动）」组合，取第一个满足目标体积且质量最高的方案。文件不上传服务器，全程本地完成。'
-
-export const metadata = {
-  title,
-  description,
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('gifCompress')
+  const title = t('title')
+  const description = t('description')
+  return {
     title,
     description,
-  },
-  twitter: {
-    title,
-    description,
-    card: 'summary_large_image',
-  },
-} satisfies Metadata
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+      card: 'summary_large_image',
+    },
+  }
+}
 
-export default function GifCompressPage() {
+export default async function GifCompressPage() {
+  const t = await getTranslations('gifCompress')
+  const tTools = await getTranslations('tools')
   return (
     <Container className="mt-16 sm:mt-32">
       {/* 面包屑 */}
@@ -31,10 +35,10 @@ export default function GifCompressPage() {
           href="/tools"
           className="transition-colors hover:text-zinc-600 dark:hover:text-zinc-200"
         >
-          工具库
+          {tTools('title')}
         </Link>
         <span className="text-zinc-300 dark:text-zinc-600">/</span>
-        <span className="text-zinc-600 dark:text-zinc-300">GIF 压缩</span>
+        <span className="text-zinc-600 dark:text-zinc-300">{t('heading')}</span>
       </nav>
 
       {/* 页面标题 · 日系留白 */}
@@ -47,19 +51,16 @@ export default function GifCompressPage() {
             GIF圧縮
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
-            GIF 压缩
+            {t('heading')}
           </h1>
           <p className="mt-6 max-w-2xl text-base font-light leading-loose text-zinc-500 dark:text-zinc-400">
-            上传一个 <b className="font-medium text-zinc-700 dark:text-zinc-200">.gif</b>{' '}
-            动图，自动逐级尝试
-            <b className="font-medium text-zinc-700 dark:text-zinc-200">
-              「缩放 + 抽帧 + 调色板量化」
-            </b>
-            组合，取第一个满足目标体积且质量最高的方案，播放总时长保持不变。整个过程在你的浏览器里本地完成，
-            <b className="font-medium text-zinc-700 dark:text-zinc-200">
-              文件不会上传到任何服务器
-            </b>
-            。
+            {t.rich('introRich', {
+              b: (chunks) => (
+                <b className="font-medium text-zinc-700 dark:text-zinc-200">
+                  {chunks}
+                </b>
+              ),
+            })}
           </p>
         </div>
       </header>

@@ -1,27 +1,32 @@
 import { type Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
 import { GameCenter } from '~/app/(main)/game-center/GameCenter'
 import { Container } from '~/components/ui/Container'
 
-const title = '游戏中心'
-const description =
-  '在线畅玩经典 Flash 游戏！无需安装任何插件，打开浏览器即可在线畅玩。'
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('gameCenter')
+  const title = t('title')
+  const description = t('description')
 
-export const metadata = {
-  title,
-  description,
-  openGraph: {
+  return {
     title,
     description,
-  },
-  twitter: {
-    title,
-    description,
-    card: 'summary_large_image',
-  },
-} satisfies Metadata
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+      card: 'summary_large_image',
+    },
+  }
+}
 
-export default function GameCenterPage() {
+export default async function GameCenterPage() {
+  const t = await getTranslations('gameCenter')
+
   return (
     <Container className="mt-16 sm:mt-32">
       {/* 街机舞台 —— 暗色霓虹背景 */}
@@ -48,16 +53,17 @@ export default function GameCenterPage() {
           {/* 徽章 */}
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold tracking-widest text-emerald-300 backdrop-blur">
             <span className="inline-block h-1.5 w-1.5 animate-glow-pulse rounded-full bg-emerald-400 shadow-[0_0_8px_2px_rgba(16,185,129,0.8)]" />
-            ARCADE · 街机厅
+            {t('badge')}
           </span>
 
           <h1 className="mt-6 bg-gradient-to-r from-emerald-300 via-cyan-300 to-fuchsia-300 bg-[length:200%_auto] bg-clip-text text-4xl font-black tracking-tight text-transparent animate-gradient-x sm:text-6xl">
-            游戏中心
+            {t('title')}
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-zinc-400">
-            在线畅玩经典 <b className="text-emerald-300">Flash</b>{' '}
-            游戏！无需安装任何插件，打开浏览器即可畅玩。选择下方游戏开始游玩吧。
+            {t.rich('introRich', {
+              b: (chunks) => <b className="text-emerald-300">{chunks}</b>,
+            })}
           </p>
         </header>
 

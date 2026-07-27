@@ -31,8 +31,10 @@ import {
   useMotionValue,
 } from 'framer-motion'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
+import { LocaleSwitcher } from '~/app/(main)/LocaleSwitcher'
 import { NavigationBar } from '~/app/(main)/NavigationBar'
 import SerachPage from '~/app/(main)/serach/page'
 import { ThemeSwitcher } from '~/app/(main)/ThemeSwitcher'
@@ -356,6 +358,9 @@ export function Header() {
               >
                 <UserInfo />
                 <div className="pointer-events-auto">
+                  <LocaleSwitcher />
+                </div>
+                <div className="pointer-events-auto">
                   <ThemeSwitcher />
                 </div>
                 <div className="pointer-events-none">
@@ -399,6 +404,7 @@ export function Header() {
 function UserInfo() {
   const [tooltipOpen, setTooltipOpen] = React.useState(false)
   const pathname = usePathname()
+  const t = useTranslations('header')
   const { user } = useUser()
   const StrategyIcon = React.useMemo(() => {
     const strategy = user?.primaryEmailAddress?.verification.strategy
@@ -474,7 +480,7 @@ function UserInfo() {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                       >
-                        登录
+                        {t('signIn')}
                       </motion.div>
                     </Tooltip.Content>
                   </Tooltip.Portal>

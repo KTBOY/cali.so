@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import React, { useEffect, useRef, useState } from 'react'
 
 // 说明：SWF 播放引擎通过 CDN 加载，其全局对象名由引擎自身定义，无法在不自托管的情况下更改。
@@ -100,6 +101,7 @@ export default function FlashPlayer({
   const [status, setStatus] = useState<'loading' | 'playing' | 'error'>('loading')
   const [errorMsg, setErrorMsg] = useState('')
   const [retryKey, setRetryKey] = useState(0)
+  const t = useTranslations('gameCenter')
 
   useEffect(() => {
     patchConsoleWarn()
@@ -118,7 +120,8 @@ export default function FlashPlayer({
         if (cancelled || !containerRef.current) return
 
         if (!window.RufflePlayer?.newest) {
-          throw new Error('Flash 引擎初始化失败')
+          // 错误标记，渲染时映射为双语文案
+          throw new Error('ENGINE_INIT_FAILED')
         }
 
         // 清理可能存在的旧播放器
@@ -166,7 +169,7 @@ export default function FlashPlayer({
       } catch (err) {
         if (cancelled) return
         console.error('Flash player error:', err)
-        setErrorMsg(err instanceof Error ? err.message : '游戏加载失败')
+        setErrorMsg(err instanceof Error ? err.message : '')
         setStatus('error')
       }
     }
@@ -202,7 +205,7 @@ export default function FlashPlayer({
       {status === 'loading' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-900/90">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-400 border-t-transparent" />
-          <p className="text-sm text-zinc-300">正在加载 {title}...</p>
+          <p className="text-sm text-zinc-300">{t('loadingGame', { title })}</p>
         </div>
       )}
 
@@ -224,12 +227,16 @@ export default function FlashPlayer({
               />
             </svg>
           </div>
-          <p className="text-center text-sm text-zinc-300">{errorMsg}</p>
+          <p className="text-center text-sm text-zinc-300">
+            {errorMsg === 'ENGINE_INIT_FAILED'
+              ? t('engineInitFailed')
+              : errorMsg || t('loadFailed')}
+          </p>
           <button
             onClick={() => setRetryKey((k) => k + 1)}
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
           >
-            重新加载
+            {t('reload')}
           </button>
         </div>
       )}

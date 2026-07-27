@@ -1,38 +1,49 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import { SectionHeading, WcShell } from '../_components/ui'
-import { getAwards } from '../_lib/data'
+import { getAwards, getTeams } from '../_lib/data'
+import { isZhLocale } from '../_lib/i18n'
 import { playerHref } from '../_lib/nav'
 
-const title = '奖项 · 世界杯历史'
-const description =
-  '世界杯个人奖项(金球奖、金靴奖、金手套、最佳新秀等)的历届得主。'
-
-export const metadata = {
-  title,
-  description,
-  openGraph: { title, description },
-  twitter: { title, description, card: 'summary_large_image' },
-} satisfies Metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('worldCup')
+  const title = `${t('awards.title')} · ${t('title')}`
+  const description = t('awards.metaDescription')
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description, card: 'summary_large_image' },
+  }
+}
 
 export default function AwardsPage() {
+  const t = useTranslations('worldCup.awards')
+  const locale = useLocale()
+  const isZh = isZhLocale(locale)
+  // 获奖记录里的 team 只有中文名,英文界面用映射还原
+  const teamEnByZh = new Map(getTeams().map((tm) => [tm.nameZh, tm.nameEn]))
   const awards = getAwards()
   return (
     <WcShell>
       <header>
         <p className="text-xs tracking-[0.3em] text-neutral-400">AWARDS</p>
         <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight text-neutral-900 dark:text-neutral-100">
-          奖项
+          {t('title')}
         </h1>
         <p className="mt-4 text-sm font-light leading-loose text-neutral-600 dark:text-neutral-400">
-          金球、金靴、金手套、最佳新秀——世界杯为个人荣耀准备的奖杯,以及它们历届的归属。
+          {t('intro')}
         </p>
       </header>
 
       {awards.map((a) => (
         <div key={a.name}>
-          <SectionHeading note={a.since ? `始于 ${a.since}` : undefined}>
+          <SectionHeading
+            note={a.since ? t('sinceNote', { year: a.since }) : undefined}
+          >
             {a.name}
           </SectionHeading>
           {a.description ? (
@@ -52,7 +63,9 @@ export default function AwardsPage() {
                 >
                   {w.player}
                 </Link>
-                <span className="text-xs text-neutral-400">{w.team}</span>
+                <span className="text-xs text-neutral-400">
+                  {isZh ? w.team : teamEnByZh.get(w.team) ?? w.team}
+                </span>
               </li>
             ))}
           </ul>

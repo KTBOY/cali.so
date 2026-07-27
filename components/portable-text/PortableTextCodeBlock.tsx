@@ -1,6 +1,7 @@
 'use client'
 
 import { type PortableTextComponentProps } from '@portabletext/react'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 
@@ -17,6 +18,7 @@ export function PortableTextCodeBlock({
   code: string
   filename?: string
 }>) {
+  const t = useTranslations('common')
   const [hasCopied, setHasCopied] = React.useState(false)
   const onClickCopy = React.useCallback(() => {
     navigator.clipboard
@@ -56,7 +58,7 @@ export function PortableTextCodeBlock({
             )}
             <div className="absolute right-0 top-2 flex h-8 items-center pr-4">
               <div className="relative -mr-0.5 flex">
-                <ElegantTooltip content="复制">
+                <ElegantTooltip content={t('copy')}>
                   <button
                     type="button"
                     className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-500 dark:hover:text-zinc-400"

@@ -1,10 +1,13 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 import { MatchTimeline } from '../../_components/MatchTimeline'
 import { SectionHeading, TeamChip, WcShell } from '../../_components/ui'
 import { getAllMatchIds, getMatch } from '../../_lib/data'
+import { posName, stageName, teamName } from '../../_lib/i18n'
 import { playerHref, teamHref, tournamentHref } from '../../_lib/nav'
 import { type MatchDetail } from '../../_lib/types'
 
@@ -22,15 +25,24 @@ function load(id: string): MatchDetail | null {
   }
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { matchId: string }
-}): Metadata {
+}): Promise<Metadata> {
   const m = load(params.matchId)
-  if (!m) return { title: '未找到 · 世界杯历史' }
-  const title = `${m.home.nameZh} ${m.home.score ?? ''}–${m.away.score ?? ''} ${m.away.nameZh} · ${m.year} 世界杯`
-  const description = `${m.year} 年世界杯 ${m.stageZh}:${m.home.nameZh} 对阵 ${m.away.nameZh}。`
+  const tw = await getTranslations('worldCup')
+  if (!m) return { title: `${tw('notFound')} · ${tw('title')}` }
+  const locale = await getLocale()
+  const home = teamName(m.home, locale)
+  const away = teamName(m.away, locale)
+  const title = `${home} ${m.home.score ?? ''}–${m.away.score ?? ''} ${away} · ${tw('match.metaTitleSuffix', { year: m.year })}`
+  const description = tw('match.metaDescription', {
+    year: m.year,
+    stage: stageName(m.stageZh, locale),
+    home,
+    away,
+  })
   return {
     title,
     description,
@@ -46,6 +58,8 @@ export default function MatchPage({
 }: {
   params: { matchId: string }
 }) {
+  const t = useTranslations('worldCup.match')
+  const locale = useLocale()
   const m = load(params.matchId)
   if (!m) notFound()
 
@@ -56,10 +70,10 @@ export default function MatchPage({
           href={tournamentHref(m.year)}
           className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300"
         >
-          {m.year} 年世界杯
+          {t('yearWorldCup', { year: m.year })}
         </Link>
         <span className="mx-1">·</span>
-        {m.stageZh}
+        {stageName(m.stageZh, locale)}
         {m.group ? ` · ${m.group}` : ''}
       </nav>
 
@@ -76,7 +90,7 @@ export default function MatchPage({
               >
                 <div className="font-mono text-xs text-neutral-400">{team.code}</div>
                 <div className="mt-1 font-serif text-xl font-normal text-neutral-900 dark:text-neutral-100">
-                  {team.nameZh}
+                  {teamName(team, locale)}
                 </div>
               </Link>
             )
@@ -88,10 +102,10 @@ export default function MatchPage({
           </div>
           {m.penalties ? (
             <div className="mt-1 text-xs text-orange-700 dark:text-orange-500">
-              点球 {m.penalties}
+              {t('penalties', { score: m.penalties })}
             </div>
           ) : m.extraTime ? (
-            <div className="mt-1 text-xs text-neutral-400">加时赛</div>
+            <div className="mt-1 text-xs text-neutral-400">{t('extraTime')}</div>
           ) : null}
         </div>
         <p className="mt-4 text-center text-xs text-neutral-400">
@@ -110,7 +124,9 @@ export default function MatchPage({
 
       {m.goals.length > 0 ? (
         <>
-          <SectionHeading note={`${m.goals.length} 球`}>进球</SectionHeading>
+          <SectionHeading note={t('goalsNote', { count: m.goals.length })}>
+            {t('goals')}
+          </SectionHeading>
           <ul className="space-y-1.5 text-sm">
             {m.goals.map((g, i) => (
               <li key={i} className="flex items-baseline gap-3">
@@ -126,8 +142,12 @@ export default function MatchPage({
                 >
                   {g.scorer}
                 </Link>
-                {g.penalty ? <span className="text-[11px] text-neutral-400">(点球)</span> : null}
-                {g.own ? <span className="text-[11px] text-neutral-400">(乌龙)</span> : null}
+                {g.penalty ? (
+                  <span className="text-[11px] text-neutral-400">{t('penaltyTag')}</span>
+                ) : null}
+                {g.own ? (
+                  <span className="text-[11px] text-neutral-400">{t('ownGoalTag')}</span>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -136,7 +156,7 @@ export default function MatchPage({
 
       {m.hasLineups ? (
         <>
-          <SectionHeading note="首发 + 替补">阵容</SectionHeading>
+          <SectionHeading note={t('lineupsNote')}>{t('lineups')}</SectionHeading>
           <div className="grid grid-cols-2 gap-6">
             {SIDES.map((sd) => {
               const team = sd === 'home' ? m.home : m.away
@@ -153,13 +173,15 @@ export default function MatchPage({
                           {pl.num ?? ''}
                         </span>
                         <span className="text-neutral-800 dark:text-neutral-200">{pl.name}</span>
-                        <span className="text-[10px] text-neutral-400">{pl.pos}</span>
+                        <span className="text-[10px] text-neutral-400">
+                          {posName(pl.pos, locale)}
+                        </span>
                       </li>
                     ))}
                   </ol>
                   {lu.subs.length > 0 ? (
                     <div className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800">
-                      <div className="mb-1 text-[10px] text-neutral-400">替补</div>
+                      <div className="mb-1 text-[10px] text-neutral-400">{t('substitutes')}</div>
                       <ul className="space-y-1 text-xs text-neutral-500 dark:text-neutral-400">
                         {lu.subs.map((pl, i) => (
                           <li key={i} className="flex items-baseline gap-2">
@@ -179,29 +201,29 @@ export default function MatchPage({
         </>
       ) : (
         <p className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-xs font-light leading-relaxed text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900">
-          FIFA 官方比赛报告自 1970 年起才收录首发阵容、换人与红黄牌;本场为早期赛事,仅保留进球记录。
+          {t('noLineups')}
         </p>
       )}
 
       {m.referee || m.managers.home || m.managers.away ? (
         <>
-          <SectionHeading>其他</SectionHeading>
+          <SectionHeading>{t('others')}</SectionHeading>
           <dl className="space-y-1.5 text-sm">
             {m.managers.home ? (
               <div className="flex gap-3">
-                <dt className="w-16 shrink-0 text-xs text-neutral-400">主队主帅</dt>
+                <dt className="w-16 shrink-0 text-xs text-neutral-400">{t('homeManager')}</dt>
                 <dd className="text-neutral-700 dark:text-neutral-300">{m.managers.home}</dd>
               </div>
             ) : null}
             {m.managers.away ? (
               <div className="flex gap-3">
-                <dt className="w-16 shrink-0 text-xs text-neutral-400">客队主帅</dt>
+                <dt className="w-16 shrink-0 text-xs text-neutral-400">{t('awayManager')}</dt>
                 <dd className="text-neutral-700 dark:text-neutral-300">{m.managers.away}</dd>
               </div>
             ) : null}
             {m.referee ? (
               <div className="flex gap-3">
-                <dt className="w-16 shrink-0 text-xs text-neutral-400">主裁判</dt>
+                <dt className="w-16 shrink-0 text-xs text-neutral-400">{t('referee')}</dt>
                 <dd className="text-neutral-700 dark:text-neutral-300">
                   {m.referee.name}
                   {m.referee.country ? ` (${m.referee.country})` : ''}

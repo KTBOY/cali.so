@@ -1,7 +1,9 @@
 import { clsxm } from '@zolplay/utils'
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
 import React from 'react'
 
+import { teamName } from '../_lib/i18n'
 import { WC_BASE } from '../_lib/nav'
 import { type ScoredTeam, type TeamRef } from '../_lib/types'
 import { WorldCupNav } from './WorldCupNav'
@@ -10,15 +12,17 @@ import { WorldCupNav } from './WorldCupNav'
 
 /** 面包屑 + 子导航 + 内容 + 数据署名。所有子页面统一套用。 */
 export function WcShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('worldCup')
+  const tTools = useTranslations('tools')
   return (
     <div className="mx-auto mt-16 max-w-2xl px-4 pb-16 pt-6 sm:mt-24 sm:px-6">
       <nav className="mb-5 flex items-center gap-2 text-xs font-light text-neutral-400 dark:text-neutral-500">
         <Link href="/tools" className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300">
-          工具库
+          {tTools('title')}
         </Link>
         <span className="text-neutral-300 dark:text-neutral-600">/</span>
         <Link href={WC_BASE} className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300">
-          世界杯历史
+          {t('title')}
         </Link>
       </nav>
       <WorldCupNav />
@@ -29,10 +33,10 @@ export function WcShell({ children }: { children: React.ReactNode }) {
 }
 
 export function AttributionFooter() {
+  const t = useTranslations('worldCup')
   return (
     <footer className="mt-16 border-t border-neutral-200 pt-5 text-xs font-light leading-relaxed text-neutral-400 dark:border-neutral-800 dark:text-neutral-500">
-      数据来源:Joshua C. Fjelstul,“The Fjelstul World Cup Database v.1.2.0”
-      (2023)。{' '}
+      {t('attributionPrefix')}{' '}
       <a
         href="https://github.com/jfjelstul/worldcup"
         target="_blank"
@@ -41,7 +45,8 @@ export function AttributionFooter() {
       >
         github.com/jfjelstul/worldcup
       </a>
-      {' · '}授权协议 CC-BY-SA 4.0。
+      {' · '}
+      {t('attributionSuffix')}
     </footer>
   )
 }
@@ -97,7 +102,7 @@ export function Stat({
 
 /* ------------------------------- 球队 ---------------------------------- */
 
-/** ISO 代码方块 + 中文名(不用图片)。reverse 用于比分左侧(名在前)。 */
+/** ISO 代码方块 + 本地化队名(不用图片)。reverse 用于比分左侧(名在前)。 */
 export function TeamChip({
   team,
   href,
@@ -111,12 +116,15 @@ export function TeamChip({
   reverse?: boolean
   className?: string
 }) {
+  const locale = useLocale()
   const code = (
     <span className="inline-flex h-5 min-w-[2.5rem] items-center justify-center rounded border border-neutral-300 px-1 font-mono text-[11px] tracking-wider text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
       {team.code}
     </span>
   )
-  const name = showName ? <span className="truncate">{team.nameZh}</span> : null
+  const name = showName ? (
+    <span className="truncate">{teamName(team, locale)}</span>
+  ) : null
   const body = (
     <span
       className={clsxm(

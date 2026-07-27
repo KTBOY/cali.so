@@ -1,6 +1,8 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 import {
   DataBar,
@@ -11,6 +13,7 @@ import {
   WcShell,
 } from '../../_components/ui'
 import { getAllTeamSlugs, getTeam } from '../../_lib/data'
+import { perfName, teamName } from '../../_lib/i18n'
 import { playerHref, tournamentHref } from '../../_lib/nav'
 import { type TeamDetail } from '../../_lib/types'
 
@@ -18,21 +21,6 @@ export const dynamicParams = false
 
 export function generateStaticParams() {
   return getAllTeamSlugs().map((slug) => ({ slug }))
-}
-
-const PERF_ZH: Record<string, string> = {
-  final: '决赛',
-  'third-place match': '季军战',
-  'third place match': '季军战',
-  'semi-finals': '半决赛',
-  'quarter-finals': '八强',
-  'round of 16': '16 强',
-  'round of sixteen': '16 强',
-  'group stage': '小组赛',
-  'second group stage': '复赛小组',
-  'final round': '决赛圈',
-  'first round': '第一轮',
-  'second round': '第二轮',
 }
 
 function load(slug: string): TeamDetail | null {
@@ -43,15 +31,23 @@ function load(slug: string): TeamDetail | null {
   }
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { slug: string }
-}): Metadata {
+}): Promise<Metadata> {
   const t = load(params.slug)
-  if (!t) return { title: '未找到 · 世界杯历史' }
-  const title = `${t.nameZh} · 世界杯历史`
-  const description = `${t.nameZh}的世界杯档案:${t.appearances} 次参赛、${t.matches} 场比赛、${t.titles} 次夺冠。`
+  const tw = await getTranslations('worldCup')
+  if (!t) return { title: `${tw('notFound')} · ${tw('title')}` }
+  const locale = await getLocale()
+  const name = teamName(t, locale)
+  const title = `${name} · ${tw('title')}`
+  const description = tw('team.metaDescription', {
+    name,
+    appearances: t.appearances,
+    matches: t.matches,
+    titles: t.titles,
+  })
   return {
     title,
     description,
@@ -61,6 +57,8 @@ export function generateMetadata({
 }
 
 export default function TeamPage({ params }: { params: { slug: string } }) {
+  const tt = useTranslations('worldCup.team')
+  const locale = useLocale()
   const t = load(params.slug)
   if (!t) notFound()
   const wldMax = Math.max(t.wins, t.draws, t.losses, 1)
@@ -74,45 +72,71 @@ export default function TeamPage({ params }: { params: { slug: string } }) {
         </p>
         <h1 className="mt-2 flex items-baseline gap-3">
           <span className="font-serif text-5xl font-normal text-neutral-900 dark:text-neutral-100">
-            {t.nameZh}
+            {teamName(t, locale)}
           </span>
           <span className="font-mono text-sm text-neutral-400">{t.code}</span>
         </h1>
         <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-          {t.firstYear}–{t.lastYear} · 共 {t.appearances} 次参赛
+          {tt('appearancesLine', {
+            first: t.firstYear,
+            last: t.lastYear,
+            count: t.appearances,
+          })}
         </p>
       </header>
 
       <div className="mt-8">
         <StatGrid>
-          <Stat label="次参赛" value={t.appearances} />
-          <Stat label="场比赛" value={t.matches} />
-          <Stat label="胜" value={t.wins} />
-          <Stat label="次夺冠" value={t.titles} />
+          <Stat label={tt('statAppearances')} value={t.appearances} />
+          <Stat label={tt('statMatches')} value={t.matches} />
+          <Stat label={tt('statWins')} value={t.wins} />
+          <Stat label={tt('statTitles')} value={t.titles} />
         </StatGrid>
       </div>
 
-      <SectionHeading note="全部赛事">战绩</SectionHeading>
+      <SectionHeading note={tt('recordNote')}>{tt('record')}</SectionHeading>
       <div className="space-y-2.5">
-        <DataBar label="胜" value={t.wins} max={wldMax} tone="strong" suffix=" 场" />
-        <DataBar label="平" value={t.draws} max={wldMax} tone="weak" suffix=" 场" />
-        <DataBar label="负" value={t.losses} max={wldMax} tone="weak" suffix=" 场" />
+        <DataBar
+          label={tt('win')}
+          value={t.wins}
+          max={wldMax}
+          tone="strong"
+          suffix={tt('matchesSuffix')}
+        />
+        <DataBar
+          label={tt('draw')}
+          value={t.draws}
+          max={wldMax}
+          tone="weak"
+          suffix={tt('matchesSuffix')}
+        />
+        <DataBar
+          label={tt('loss')}
+          value={t.losses}
+          max={wldMax}
+          tone="weak"
+          suffix={tt('matchesSuffix')}
+        />
       </div>
       <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
-        进 {t.gf} 球 · 失 {t.ga} 球 · 最佳成绩{' '}
-        {t.bestFinish === 1
-          ? '冠军'
-          : t.bestFinish
-            ? `第 ${t.bestFinish} 名`
-            : '—'}
+        {tt('summary', {
+          gf: t.gf,
+          ga: t.ga,
+          best:
+            t.bestFinish === 1
+              ? tt('bestChampion')
+              : t.bestFinish
+                ? tt('bestNth', { n: t.bestFinish })
+                : '—',
+        })}
       </p>
 
-      <SectionHeading note="进球时段分布">什么时候进球</SectionHeading>
+      <SectionHeading note={tt('goalTimingNote')}>{tt('goalTiming')}</SectionHeading>
       <GoalDistribution dist={t.goalDistribution} />
 
       {t.topScorers.length > 0 ? (
         <>
-          <SectionHeading note="队史射手">谁在进球</SectionHeading>
+          <SectionHeading note={tt('scorersNote')}>{tt('scorers')}</SectionHeading>
           <ul className="space-y-1.5">
             {t.topScorers.map((s) => (
               <li key={s.playerId} className="flex items-baseline gap-3 text-sm">
@@ -131,15 +155,17 @@ export default function TeamPage({ params }: { params: { slug: string } }) {
         </>
       ) : null}
 
-      <SectionHeading note={`${t.byTournament.length} 届`}>历届战绩</SectionHeading>
+      <SectionHeading note={tt('byTournamentNote', { count: t.byTournament.length })}>
+        {tt('byTournament')}
+      </SectionHeading>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-neutral-200 text-[11px] text-neutral-400 dark:border-neutral-800">
-            <th className="py-1 text-left font-normal">年份</th>
-            <th className="py-1 text-left font-normal">成绩</th>
-            <th className="py-1 text-right font-normal">场</th>
-            <th className="py-1 text-right font-normal">胜平负</th>
-            <th className="py-1 text-right font-normal">进/失</th>
+            <th className="py-1 text-left font-normal">{tt('thYear')}</th>
+            <th className="py-1 text-left font-normal">{tt('thResult')}</th>
+            <th className="py-1 text-right font-normal">{tt('thPlayed')}</th>
+            <th className="py-1 text-right font-normal">{tt('thWdl')}</th>
+            <th className="py-1 text-right font-normal">{tt('thGfGa')}</th>
           </tr>
         </thead>
         <tbody>
@@ -157,7 +183,7 @@ export default function TeamPage({ params }: { params: { slug: string } }) {
                 </Link>
               </td>
               <td className="py-1.5 text-neutral-500 dark:text-neutral-400">
-                {PERF_ZH[r.performance] ?? r.performance}
+                {perfName(r.performance, locale)}
               </td>
               <td className="py-1.5 text-right tabular-nums text-neutral-500">
                 {r.played}

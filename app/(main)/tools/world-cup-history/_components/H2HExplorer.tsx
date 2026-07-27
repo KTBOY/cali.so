@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
+import { isZhLocale, stageName, teamName } from '../_lib/i18n'
 import { matchHref } from '../_lib/nav'
 import { type H2HData, type TeamIndexItem } from '../_lib/types'
 
@@ -10,12 +12,20 @@ export function H2HExplorer({
   teams,
   data,
 }: {
-  teams: Pick<TeamIndexItem, 'teamId' | 'nameZh' | 'code'>[]
+  teams: Pick<TeamIndexItem, 'teamId' | 'nameZh' | 'nameEn' | 'code'>[]
   data: H2HData
 }) {
+  const t = useTranslations('worldCup.h2h')
+  const locale = useLocale()
+  const isZh = isZhLocale(locale)
   const sorted = useMemo(
-    () => [...teams].sort((a, b) => a.nameZh.localeCompare(b.nameZh, 'zh-CN')),
-    [teams]
+    () =>
+      [...teams].sort((a, b) =>
+        isZh
+          ? a.nameZh.localeCompare(b.nameZh, 'zh-CN')
+          : a.nameEn.localeCompare(b.nameEn, 'en')
+      ),
+    [teams, isZh]
   )
   const [aId, setAId] = useState(sorted[0]?.teamId ?? '')
   const [bId, setBId] = useState(sorted[1]?.teamId ?? '')
@@ -26,8 +36,8 @@ export function H2HExplorer({
     return data[`${x}|${y}`] ?? null
   }, [aId, bId, data])
 
-  const teamA = teams.find((t) => t.teamId === aId)
-  const teamB = teams.find((t) => t.teamId === bId)
+  const teamA = teams.find((tm) => tm.teamId === aId)
+  const teamB = teams.find((tm) => tm.teamId === bId)
   const aIsRecA = rec?.a.teamId === aId
   const aWins = rec ? (aIsRecA ? rec.aWins : rec.bWins) : 0
   const bWins = rec ? (aIsRecA ? rec.bWins : rec.aWins) : 0
@@ -41,17 +51,17 @@ export function H2HExplorer({
     <div>
       <div className="flex items-center gap-3">
         <select value={aId} onChange={(e) => setAId(e.target.value)} className={selCls}>
-          {sorted.map((t) => (
-            <option key={t.teamId} value={t.teamId}>
-              {t.nameZh}
+          {sorted.map((tm) => (
+            <option key={tm.teamId} value={tm.teamId}>
+              {teamName(tm, locale)}
             </option>
           ))}
         </select>
         <span className="shrink-0 text-neutral-400">vs</span>
         <select value={bId} onChange={(e) => setBId(e.target.value)} className={selCls}>
-          {sorted.map((t) => (
-            <option key={t.teamId} value={t.teamId}>
-              {t.nameZh}
+          {sorted.map((tm) => (
+            <option key={tm.teamId} value={tm.teamId}>
+              {teamName(tm, locale)}
             </option>
           ))}
         </select>
@@ -59,7 +69,7 @@ export function H2HExplorer({
 
       {!rec ? (
         <p className="mt-10 text-center text-sm text-neutral-400">
-          {aId === bId ? '请选择两支不同的球队。' : '这两支球队在世界杯上从未交手。'}
+          {aId === bId ? t('samePick') : t('neverMet')}
         </p>
       ) : (
         <>
@@ -69,26 +79,26 @@ export function H2HExplorer({
                 {aWins}
               </div>
               <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                {teamA?.nameZh} 胜
+                {teamA ? t('wins', { name: teamName(teamA, locale) }) : ''}
               </div>
             </div>
             <div>
               <div className="font-serif text-3xl font-normal tabular-nums text-neutral-400">
                 {rec.draws}
               </div>
-              <div className="mt-1 text-xs text-neutral-400">平</div>
+              <div className="mt-1 text-xs text-neutral-400">{t('draws')}</div>
             </div>
             <div>
               <div className="font-serif text-5xl font-normal tabular-nums text-orange-600">
                 {bWins}
               </div>
               <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                {teamB?.nameZh} 胜
+                {teamB ? t('wins', { name: teamName(teamB, locale) }) : ''}
               </div>
             </div>
           </div>
           <p className="mt-4 text-center text-xs text-neutral-400">
-            共交手 {rec.played} 次 · 进球 {aGoals} : {bGoals}
+            {t('summary', { played: rec.played, a: aGoals, b: bGoals })}
           </p>
 
           <ul className="mt-8">
@@ -105,7 +115,7 @@ export function H2HExplorer({
                       {mt.year}
                     </span>
                     <span className="flex-1 truncate text-xs text-neutral-400">
-                      {mt.stageZh}
+                      {stageName(mt.stageZh, locale)}
                     </span>
                     <span className="font-mono tabular-nums text-neutral-900 dark:text-neutral-100">
                       {aScore}–{bScore}

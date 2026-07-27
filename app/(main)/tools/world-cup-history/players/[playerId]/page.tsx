@@ -1,8 +1,11 @@
 import { type Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import { SectionHeading, Stat, StatGrid, TeamChip, WcShell } from '../../_components/ui'
 import { getAllPlayerIds, getPlayer } from '../../_lib/data'
+import { posName } from '../../_lib/i18n'
 import { teamHref } from '../../_lib/nav'
 import { type PlayerDetail } from '../../_lib/types'
 
@@ -20,15 +23,20 @@ function load(id: string): PlayerDetail | null {
   }
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { playerId: string }
-}): Metadata {
+}): Promise<Metadata> {
   const p = load(params.playerId)
-  if (!p) return { title: '未找到 · 世界杯历史' }
-  const title = `${p.name} · 世界杯历史`
-  const description = `${p.name}的世界杯数据:${p.goals} 粒进球、${p.appearances} 次出场。`
+  const tw = await getTranslations('worldCup')
+  if (!p) return { title: `${tw('notFound')} · ${tw('title')}` }
+  const title = `${p.name} · ${tw('title')}`
+  const description = tw('player.metaDescription', {
+    name: p.name,
+    goals: p.goals,
+    appearances: p.appearances,
+  })
   return {
     title,
     description,
@@ -42,6 +50,8 @@ export default function PlayerPage({
 }: {
   params: { playerId: string }
 }) {
+  const t = useTranslations('worldCup.player')
+  const locale = useLocale()
   const p = load(params.playerId)
   if (!p) notFound()
   const years = Object.keys(p.goalsByYear)
@@ -52,33 +62,33 @@ export default function PlayerPage({
     <WcShell>
       <header>
         <p className="text-xs tracking-[0.3em] text-neutral-400">
-          PLAYER{p.position ? ` · ${p.position}` : ''}
+          PLAYER{p.position ? ` · ${posName(p.position, locale)}` : ''}
         </p>
         <h1 className="mt-2 font-serif text-4xl font-normal text-neutral-900 dark:text-neutral-100">
           {p.name}
         </h1>
         {p.birthDate ? (
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-            出生 {p.birthDate}
+            {t('born', { date: p.birthDate })}
           </p>
         ) : null}
       </header>
 
       <div className="mt-8">
         <StatGrid>
-          <Stat label="世界杯进球" value={p.goals} />
-          <Stat label="出场 (1970+)" value={p.appearances} />
-          <Stat label="参赛届数" value={p.tournaments.length} />
-          <Stat label="个人奖项" value={p.awards.length} />
+          <Stat label={t('statGoals')} value={p.goals} />
+          <Stat label={t('statApps')} value={p.appearances} />
+          <Stat label={t('statTournaments')} value={p.tournaments.length} />
+          <Stat label={t('statAwards')} value={p.awards.length} />
         </StatGrid>
       </div>
 
       {p.teams.length > 0 ? (
         <>
-          <SectionHeading>代表球队</SectionHeading>
+          <SectionHeading>{t('playedFor')}</SectionHeading>
           <div className="flex flex-wrap gap-3">
-            {p.teams.map((t) => (
-              <TeamChip key={t.teamId} team={t} href={teamHref(t.slug)} />
+            {p.teams.map((tm) => (
+              <TeamChip key={tm.teamId} team={tm} href={teamHref(tm.slug)} />
             ))}
           </div>
         </>
@@ -86,7 +96,7 @@ export default function PlayerPage({
 
       {years.length > 0 ? (
         <>
-          <SectionHeading note="各届进球">进球分布</SectionHeading>
+          <SectionHeading note={t('goalsByYearNote')}>{t('goalsByYear')}</SectionHeading>
           <ul className="space-y-1.5">
             {years.map((y) => {
               const n = p.goalsByYear[String(y)] ?? 0
@@ -98,7 +108,9 @@ export default function PlayerPage({
                   <span className="tracking-tight text-orange-700 dark:text-orange-500">
                     {'●'.repeat(n)}
                   </span>
-                  <span className="text-xs text-neutral-400">{n} 球</span>
+                  <span className="text-xs text-neutral-400">
+                    {t('goalsShort', { count: n })}
+                  </span>
                 </li>
               )
             })}
@@ -108,7 +120,7 @@ export default function PlayerPage({
 
       {p.awards.length > 0 ? (
         <>
-          <SectionHeading>个人奖项</SectionHeading>
+          <SectionHeading>{t('awards')}</SectionHeading>
           <ul className="space-y-1.5 text-sm">
             {p.awards.map((a, i) => (
               <li key={`${a.year}-${i}`} className="flex items-baseline gap-3">
@@ -124,7 +136,7 @@ export default function PlayerPage({
         </>
       ) : null}
 
-      <SectionHeading note="参赛年份">出场记录</SectionHeading>
+      <SectionHeading note={t('appearancesNote')}>{t('appearances')}</SectionHeading>
       <p className="text-sm font-light leading-loose text-neutral-500 dark:text-neutral-400">
         {p.tournaments.length > 0 ? p.tournaments.join(' · ') : '—'}
       </p>
