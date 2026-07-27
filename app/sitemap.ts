@@ -1,46 +1,55 @@
 import { type MetadataRoute } from 'next'
 
+import {
+  getAllMatchIds,
+  getAllPlayerIds,
+  getAllTeamSlugs,
+  getAllYears,
+} from '~/app/(main)/tools/world-cup-history/_lib/data'
+import {
+  matchHref,
+  playerHref,
+  teamHref,
+  tournamentHref,
+  WC_NAV,
+} from '~/app/(main)/tools/world-cup-history/_lib/nav'
 import { url } from '~/lib'
 import { getAllLatestBlogPostSlugs } from '~/sanity/queries'
 
-export default async function sitemap() {
-  const staticMap = [
-    {
-      url: url('/').href,
-      lastModified: new Date(),
-    },
-    {
-      url: url('/blog').href,
-      lastModified: new Date(),
-    },
-    {
-      url: url('/projects').href,
-      lastModified: new Date(),
-    },
-    {
-      url: url('/guestbook').href,
-      lastModified: new Date(),
-    },
-    {
-      url: url('/game').href,
-      lastModified: new Date(),
-    },
-     {
-      url: url('/cg').href,
-      lastModified: new Date(),
-    },
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // 前台可收录页面（/ 已 redirect 到 /bz，故只收 /bz）
+  const staticPaths = [
+    '/bz',
+    '/blog',
+    '/projects',
+    '/guestbook',
+    '/game-center',
+    '/tools',
+    '/tools/gif-compress',
+    '/tools/swf-to-exe',
+  ]
 
-  ] satisfies MetadataRoute.Sitemap
+  // 世界杯模块：8 个栏目页 + 全部静态生成的详情页
+  const worldCupPaths = [
+    ...WC_NAV.map((item) => item.href),
+    ...getAllYears().map(tournamentHref),
+    ...getAllTeamSlugs().map(teamHref),
+    ...getAllMatchIds().map(matchHref),
+    ...getAllPlayerIds().map(playerHref),
+  ]
 
-  const slugs = await getAllLatestBlogPostSlugs()
+  // Sanity 不可用时降级：仍输出其余页面，避免整个 sitemap 500
+  let blogPaths: string[] = []
+  try {
+    const slugs = await getAllLatestBlogPostSlugs()
+    blogPaths = slugs.map((slug) => `/blog/${slug}`)
+  } catch (error) {
+    console.error('[sitemap] failed to fetch blog slugs:', error)
+  }
 
-  const dynamicMap = slugs.map((slug) => ({
-    url: url(`/blog/${slug}`).href,
-    lastModified: new Date(),
-  })) satisfies MetadataRoute.Sitemap
-
-  return [...staticMap, ...dynamicMap]
+  return [...staticPaths, ...worldCupPaths, ...blogPaths].map((path) => ({
+    url: url(path).href,
+  }))
 }
 
-export const runtime = 'edge'
-export const revalidate = 60
+export const revalidate = 3600

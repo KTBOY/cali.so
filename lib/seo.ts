@@ -4,7 +4,7 @@ export const seo = {
     '免费下载，全部可玩',
   url: new URL(
     process.env.NODE_ENV === 'production'
-      ? 'https://www.ps520.asia/'
+      ? 'https://www.ps521.asia/'
       : 'http://localhost:3000'
   ),
 } as const

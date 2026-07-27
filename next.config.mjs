@@ -12,6 +12,10 @@
  */
 !process.env.SKIP_ENV_VALIDATION && (await import('./env.mjs'))
 
+import createNextIntlPlugin from 'next-intl/plugin'
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -30,6 +34,8 @@ const nextConfig = {
     // 将非 public 目录的 SWF 文件打包进 /g/[key] 路由的 Serverless Function
     outputFileTracingIncludes: {
       '/g/[key]': ['./swf-data/**/*'],
+      // sitemap 运行时读取世界杯预计算 JSON，需随函数打包
+      '/sitemap.xml': ['./app/(main)/tools/world-cup-history/_data/**/*'],
     },
   },
 
@@ -98,4 +104,4 @@ const nextConfig = {
 
 }
 
-export default nextConfig
+export default withNextIntl(nextConfig)

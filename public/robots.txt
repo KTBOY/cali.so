@@ -2,4 +2,12 @@ User-agent: *
 Disallow: /private/
 Disallow: /g/
 Disallow: /swf/
+Disallow: /admin/
+Disallow: /studio/
+Disallow: /api/
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /blocked
 Allow: /
+
+Sitemap: https://www.ps521.asia/sitemap.xml
