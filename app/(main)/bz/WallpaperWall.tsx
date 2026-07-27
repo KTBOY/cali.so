@@ -11,14 +11,64 @@ const totalCategoryCount = wallpaperGroups.reduce(
   0
 )
 
-/** 横向滚动栏：隐藏滚动条 + 两侧渐隐遮罩（纯 CSS，无 JS 监听） */
+/** 横向滚动栏：隐藏滚动条 + 两侧渐隐遮罩（负外边距抵消内边距，静止时首尾 tab 不被遮罩盖住） */
 const scrollBarClass =
-  'flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,black_20px,black_calc(100%-20px),transparent)]'
+  '-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)]'
 
 /** 每次滚动加载的张数 */
 const PAGE_SIZE = 12
-/** 骨架屏占位高度（循环取用，营造瀑布流错落感） */
-const SKELETON_HEIGHTS = [200, 260, 320, 240]
+/** 预留宽高比集合（高/宽，循环取用）：盒子高度加载前后一致 → 0 抖动（参考 sk-image-waterfall） */
+const CARD_RATIOS = [0.72, 0.86, 1.0, 1.16, 1.3]
+/** 卡片底栏（No. + 保存）折算的列高常量，仅用于最矮列分配的列高估算 */
+const CARD_META_RATIO = 0.16
+
+/* ---------- 图片懒加载：全部卡片共享一个 IntersectionObserver ---------- */
+let lazyObserver: IntersectionObserver | null = null
+const lazyCallbacks = new WeakMap<Element, () => void>()
+
+/** 观察元素进入视口（提前 400px 预加载），返回清理函数 */
+function observeLazy(el: Element, onVisible: () => void) {
+  if (typeof IntersectionObserver === 'undefined') {
+    onVisible()
+    return
+  }
+  lazyObserver ??= new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        const cb = lazyCallbacks.get(entry.target)
+        lazyCallbacks.delete(entry.target)
+        lazyObserver?.unobserve(entry.target)
+        cb?.()
+      })
+    },
+    { rootMargin: '400px 0px' }
+  )
+  lazyCallbacks.set(el, onVisible)
+  lazyObserver.observe(el)
+  return () => {
+    lazyCallbacks.delete(el)
+    lazyObserver?.unobserve(el)
+  }
+}
+
+/** 瀑布流列数：断点与骨架屏一致（<640 两列 / ≥640 三列 / ≥1024 四列） */
+function useColumnCount() {
+  const [count, setCount] = React.useState(2)
+  React.useEffect(() => {
+    const lg = window.matchMedia('(min-width: 1024px)')
+    const sm = window.matchMedia('(min-width: 640px)')
+    const update = () => setCount(lg.matches ? 4 : sm.matches ? 3 : 2)
+    update()
+    lg.addEventListener('change', update)
+    sm.addEventListener('change', update)
+    return () => {
+      lg.removeEventListener('change', update)
+      sm.removeEventListener('change', update)
+    }
+  }, [])
+  return count
+}
 
 /** 生成 4 位验证码（排除易混淆字符） */
 function genCaptchaCode() {
@@ -250,13 +300,14 @@ function Lightbox({
     >
       {/* 加载指示 */}
       {!loaded && (
-        <span className="absolute h-9 w-9 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+        <span className="absolute h-9 w-9 animate-spin rounded-full border-2 border-white/20 border-t-lime-400" />
       )}
 
       <motion.img
         key={url}
         src={url}
         alt={`壁纸大图 ${index + 1}`}
+        referrerPolicy="no-referrer"
         className="max-h-[86vh] max-w-[92vw] rounded-2xl object-contain shadow-2xl"
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: loaded ? 1 : 0, scale: loaded ? 1 : 0.96 }}
@@ -376,43 +427,71 @@ function Lightbox({
 const WallpaperCard = React.memo(function WallpaperCard({
   url,
   index,
+  ratio,
   onView,
   onDownload,
 }: {
   url: string
   index: number
-  onView: () => void
-  onDownload: () => void
+  /** 预留宽高比（高/宽），盒子高度固定，图片 object-cover 裁切填充 */
+  ratio: number
+  onView: (index: number) => void
+  onDownload: (url: string) => void
 }) {
-  const [loaded, setLoaded] = React.useState(false)
-  const skeletonHeight = SKELETON_HEIGHTS[index % SKELETON_HEIGHTS.length]
+  const cardRef = React.useRef<HTMLDivElement>(null)
+  const [inView, setInView] = React.useState(false)
+  const [status, setStatus] = React.useState<'loading' | 'loaded' | 'error'>(
+    'loading'
+  )
+
+  // 进入视口前只渲染骨架，由共享 IntersectionObserver 触发真正加载
+  React.useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    return observeLazy(el, () => setInView(true))
+  }, [])
 
   return (
-    <motion.div
-      className="group relative mb-5 break-inside-avoid overflow-hidden rounded-3xl border border-black/[0.06] bg-white p-1.5 shadow-[0_10px_40px_-24px_rgba(0,0,0,0.3)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.35)] dark:border-white/[0.06] dark:bg-white/[0.03]"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: (index % PAGE_SIZE) * 0.03 }}
+    <div
+      ref={cardRef}
+      className="group relative mb-5 overflow-hidden rounded-3xl border border-black/[0.06] bg-white p-1.5 shadow-[0_10px_40px_-24px_rgba(0,0,0,0.3)] transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.35)] dark:border-white/[0.06] dark:bg-white/[0.03]"
     >
-      {/* 骨架屏：图片加载完成前占位 */}
-      {!loaded && (
+      {/* 预留高度盒：aspect-ratio 在加载前后完全一致，列高永不跳变 */}
+      <div
+        className="relative w-full overflow-hidden rounded-[1.25rem]"
+        style={{ aspectRatio: `1 / ${ratio}` }}
+      >
+        {/* 流光骨架屏：加载完成 / 失败后淡出 */}
         <div
-          className="w-full animate-pulse rounded-[1.25rem] bg-zinc-100 dark:bg-zinc-800"
-          style={{ height: skeletonHeight }}
+          className={`wf-skeleton ${
+            status === 'loading' ? 'opacity-100' : 'opacity-0'
+          }`}
         />
-      )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={url}
-        alt={`壁纸 No.${index + 1}`}
-        loading="lazy"
-        decoding="async"
-        className={`w-full cursor-zoom-in rounded-[1.25rem] object-cover transition-transform duration-500 group-hover:scale-[1.02] ${
-          loaded ? 'block' : 'hidden'
-        }`}
-        onLoad={() => setLoaded(true)}
-        onClick={onView}
-      />
+        {status === 'error' ? (
+          // 加载失败兜底（防盗链 / 坏图），占位盒尺寸不变
+          <div className="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+            <span className="text-xs font-light text-zinc-400">
+              图片加载失败
+            </span>
+          </div>
+        ) : (
+          inView && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={url}
+              alt={`壁纸 No.${index + 1}`}
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className={`absolute inset-0 h-full w-full cursor-zoom-in object-cover transition-[opacity,transform] duration-500 ease-out group-hover:scale-[1.02] ${
+                status === 'loaded' ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setStatus('loaded')}
+              onError={() => setStatus('error')}
+              onClick={() => onView(index)}
+            />
+          )
+        )}
+      </div>
 
       <div className="flex items-center justify-between px-3 py-2.5">
         <span className="text-[11px] font-light tracking-[0.2em] text-zinc-400">
@@ -421,7 +500,7 @@ const WallpaperCard = React.memo(function WallpaperCard({
         <button
           type="button"
           className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-rose-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-200"
-          onClick={onDownload}
+          onClick={() => onDownload(url)}
         >
           保存
           <svg
@@ -439,7 +518,7 @@ const WallpaperCard = React.memo(function WallpaperCard({
           </svg>
         </button>
       </div>
-    </motion.div>
+    </div>
   )
 })
 
@@ -577,8 +656,8 @@ function CategoryPanel({
                     type="button"
                     className={
                       activeId === c.id
-                        ? 'rounded-full border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-medium text-rose-600 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
-                        : 'rounded-full border border-black/[0.06] bg-white px-3.5 py-1.5 text-xs font-light text-zinc-500 transition-colors hover:border-rose-200 hover:text-rose-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400 dark:hover:text-rose-300'
+                        ? 'rounded-full border border-lime-300 bg-lime-50 px-3.5 py-1.5 text-xs font-medium text-lime-600 dark:border-lime-400/30 dark:bg-lime-400/10 dark:text-lime-300'
+                        : 'rounded-full border border-black/[0.06] bg-white px-3.5 py-1.5 text-xs font-light text-zinc-500 transition-colors hover:border-lime-300 hover:text-lime-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400 dark:hover:text-lime-300'
                     }
                     onClick={() => onSelect(g.groupIndex, c.id)}
                   >
@@ -604,10 +683,38 @@ export function WallpaperWall() {
   const [failed, setFailed] = React.useState(false)
   const [viewIndex, setViewIndex] = React.useState<number | null>(null)
   const [pendingUrl, setPendingUrl] = React.useState<string | null>(null)
+  const columnCount = useColumnCount()
 
   const loadingRef = React.useRef(false)
   const seenRef = React.useRef<Set<string>>(new Set())
   const sentinelRef = React.useRef<HTMLDivElement>(null)
+
+  /** 稳定回调：避免追加图片时旧卡片因 props 变化重渲染（React.memo 才真正生效） */
+  const handleView = React.useCallback((i: number) => setViewIndex(i), [])
+  const handleDownload = React.useCallback(
+    (url: string) => setPendingUrl(url),
+    []
+  )
+
+  /** JS 瀑布流：按预留比估算列高，每张分到当前最矮列（参考 sk-image-waterfall 的 _distribute）。
+   *  ratio 由 index 确定、贪心结果确定，因此追加新图时旧卡片分列不变，永不跨列重排 */
+  const columns = React.useMemo(() => {
+    const cols: { url: string; index: number; ratio: number }[][] = Array.from(
+      { length: columnCount },
+      () => []
+    )
+    const heights = new Array<number>(columnCount).fill(0)
+    pics.forEach((url, index) => {
+      const ratio = CARD_RATIOS[index % CARD_RATIOS.length]
+      let min = 0
+      for (let i = 1; i < columnCount; i++) {
+        if (heights[i] < heights[min]) min = i
+      }
+      cols[min].push({ url, index, ratio })
+      heights[min] += ratio + CARD_META_RATIO
+    })
+    return cols
+  }, [pics, columnCount])
 
   /** 拉取一批壁纸（append=false 为重置） */
   const fetchPics = React.useCallback(
@@ -662,7 +769,7 @@ export function WallpaperWall() {
           void fetchPics(category, true)
         }
       },
-      { rootMargin: '600px 0px' }
+      { rootMargin: '1200px 0px' }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
@@ -706,7 +813,7 @@ export function WallpaperWall() {
             type="button"
             className={
               gi === groupIndex
-                ? 'flex-none whitespace-nowrap rounded-full bg-zinc-800 px-5 py-2 text-sm font-medium text-white shadow-sm transition dark:bg-zinc-100 dark:text-zinc-900'
+                ? 'flex-none whitespace-nowrap rounded-full bg-lime-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition dark:bg-lime-400 dark:text-zinc-900'
                 : 'flex-none whitespace-nowrap rounded-full border border-black/[0.06] bg-white/80 px-5 py-2 text-sm font-light text-zinc-500 shadow-sm transition hover:text-zinc-800 dark:border-white/10 dark:bg-white/5 dark:hover:text-zinc-200'
             }
             onClick={() => switchGroup(gi)}
@@ -729,8 +836,8 @@ export function WallpaperWall() {
               data-active={category === c.id}
               className={
                 category === c.id
-                  ? 'flex-none whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-medium text-rose-600 transition dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
-                  : 'flex-none whitespace-nowrap rounded-full border border-black/[0.06] bg-white/60 px-3.5 py-1.5 text-xs font-light text-zinc-500 transition hover:border-rose-200 hover:text-rose-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400 dark:hover:text-rose-300'
+                  ? 'flex-none whitespace-nowrap rounded-full border border-lime-300 bg-lime-50 px-3.5 py-1.5 text-xs font-medium text-lime-600 transition dark:border-lime-400/30 dark:bg-lime-400/10 dark:text-lime-300'
+                  : 'flex-none whitespace-nowrap rounded-full border border-black/[0.06] bg-white/60 px-3.5 py-1.5 text-xs font-light text-zinc-500 transition hover:border-lime-300 hover:text-lime-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400 dark:hover:text-lime-300'
               }
               onClick={() => setCategory(c.id)}
             >
@@ -740,7 +847,7 @@ export function WallpaperWall() {
         </div>
         <button
           type="button"
-          className="inline-flex flex-none items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-600 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-200 hover:text-rose-500 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:text-rose-300"
+          className="inline-flex flex-none items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-600 shadow-sm transition hover:-translate-y-0.5 hover:border-lime-300 hover:text-lime-600 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:text-lime-300"
           onClick={() => setPanelOpen(true)}
         >
           <svg
@@ -787,36 +894,49 @@ export function WallpaperWall() {
         </button>
       </div>
 
-      {/* 瀑布流 */}
-      <div className="mt-8 columns-2 gap-5 sm:columns-3 lg:columns-4">
-        {pics.map((url, i) => (
-          <WallpaperCard
-            key={url}
-            url={url}
-            index={i}
-            onView={() => setViewIndex(i)}
-            onDownload={() => setPendingUrl(url)}
-          />
-        ))}
-        {/* 首屏骨架屏 */}
-        {loading &&
-          pics.length === 0 &&
-          Array.from({ length: PAGE_SIZE }).map((_, i) => (
-            <div
-              key={i}
-              className="mb-5 break-inside-avoid overflow-hidden rounded-3xl border border-black/[0.06] bg-white p-1.5 dark:border-white/[0.06] dark:bg-white/[0.03]"
-            >
-              <div
-                className="w-full animate-pulse rounded-[1.25rem] bg-zinc-100 dark:bg-zinc-800"
-                style={{
-                  height: SKELETON_HEIGHTS[i % SKELETON_HEIGHTS.length],
-                }}
+      {/* 瀑布流：JS 列分发（新图仅追加列尾，避免 CSS columns 整墙重排导致的滚动卡顿） */}
+      <div className="mt-8 flex items-start gap-5">
+        {columns.map((col, ci) => (
+          <div key={ci} className="min-w-0 flex-1">
+            {col.map(({ url, index, ratio }) => (
+              <WallpaperCard
+                key={url}
+                url={url}
+                index={index}
+                ratio={ratio}
+                onView={handleView}
+                onDownload={handleDownload}
               />
-              <div className="px-3 py-3">
-                <div className="h-3 w-16 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
-              </div>
-            </div>
-          ))}
+            ))}
+            {/* 首屏骨架屏：与真实卡片同比例的流光占位 */}
+            {loading &&
+              pics.length === 0 &&
+              Array.from({ length: Math.ceil(PAGE_SIZE / columnCount) }).map(
+                (_, i) => (
+                  <div
+                    key={i}
+                    className="mb-5 overflow-hidden rounded-3xl border border-black/[0.06] bg-white p-1.5 dark:border-white/[0.06] dark:bg-white/[0.03]"
+                  >
+                    <div
+                      className="relative w-full overflow-hidden rounded-[1.25rem]"
+                      style={{
+                        aspectRatio: `1 / ${
+                          CARD_RATIOS[
+                            (i * columnCount + ci) % CARD_RATIOS.length
+                          ]
+                        }`,
+                      }}
+                    >
+                      <div className="wf-skeleton" />
+                    </div>
+                    <div className="px-3 py-3">
+                      <div className="h-3 w-16 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+                    </div>
+                  </div>
+                )
+              )}
+          </div>
+        ))}
       </div>
 
       {/* 加载失败提示 */}
@@ -835,11 +955,11 @@ export function WallpaperWall() {
         </div>
       )}
 
-      {/* 无限滚动哨兵 + 加载指示 */}
-      <div ref={sentinelRef} className="mt-6 flex justify-center py-6">
+      {/* 无限滚动哨兵 + 加载指示（固定高度，指示器出现时不抖动页脚） */}
+      <div ref={sentinelRef} className="mt-6 flex h-16 items-center justify-center">
         {loading && pics.length > 0 && (
           <span className="inline-flex items-center gap-2.5 text-xs font-light tracking-widest text-zinc-400">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-200 border-t-rose-400 dark:border-zinc-700" />
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-200 border-t-lime-600 dark:border-zinc-700 dark:border-t-lime-400" />
             正在拾取新壁纸…
           </span>
         )}

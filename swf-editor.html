@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SWF 数值修改器</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel2: #1e222b; --border: #2a2f3a;
+    --text: #e6e9ef; --muted: #9aa4b2; --accent: #4f8cff; --accent2: #3bd6a0;
+    --warn: #ffb020; --danger: #ff5c5c; --edit: #3bd6a0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; font-size: 14px;
+  }
+  header {
+    padding: 16px 22px; background: linear-gradient(180deg,#1a1e27,#141822);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0 0 4px; font-size: 18px; }
+  header p { margin: 0; color: var(--muted); font-size: 12.5px; }
+  .wrap { padding: 18px 22px; max-width: 1200px; margin: 0 auto; }
+  .drop {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 34px;
+    text-align: center; color: var(--muted); cursor: pointer; transition: .15s;
+    background: var(--panel);
+  }
+  .drop:hover, .drop.over { border-color: var(--accent); color: var(--text); background: var(--panel2); }
+  .drop b { color: var(--accent); }
+  .hidden { display: none !important; }
+  .bar {
+    display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 14px;
+  }
+  .bar .item { font-size: 12.5px; color: var(--muted); }
+  .bar .item b { color: var(--text); font-weight: 600; }
+  .tag {
+    display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px;
+    background: #24314f; color: #9cc0ff; border: 1px solid #315089;
+  }
+  .tag.as2 { background:#2b2340; color:#c9a9ff; border-color:#4a3a72; }
+  .tag.as3 { background:#123b30; color:#7ff0c6; border-color:#1f6b54; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  input, select, button {
+    font-family: inherit; font-size: 13px; color: var(--text);
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 11px;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  input[type=text], input[type=number] { min-width: 120px; }
+  button {
+    cursor: pointer; background: var(--panel2); transition: .12s; white-space: nowrap;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.ghost { background: transparent; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .search { flex: 1; min-width: 200px; }
+  .replacer {
+    display: flex; gap: 8px; align-items: center; margin-left: auto;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px;
+  }
+  .replacer input { width: 100px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    position: sticky; top: 0; background: var(--panel2); text-align: left;
+    padding: 9px 12px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border);
+    z-index: 1;
+  }
+  tbody td { padding: 7px 12px; border-bottom: 1px solid #20242e; vertical-align: middle; }
+  tbody tr:hover { background: #191d26; }
+  tbody tr.edited { background: #14261f; }
+  .ttype {
+    font-size: 11px; padding: 1px 7px; border-radius: 5px; background: #262b36; color: var(--muted);
+  }
+  .ttype.int { color:#9cc0ff; } .ttype.uint { color:#c9a9ff; }
+  .ttype.double { color:#7ff0c6; } .ttype.float { color:#ffd28a; }
+  .val { font-family: "Cascadia Code", Consolas, monospace; }
+  .ctx { color: var(--muted); font-size: 12px; max-width: 360px; word-break: break-all; }
+  .ctx .k { color:#ffd28a; }
+  .newval { width: 130px; font-family: "Cascadia Code", Consolas, monospace; }
+  .newval.dirty { border-color: var(--edit); color: var(--edit); }
+  .note {
+    color: var(--muted); font-size: 12px; margin: 8px 2px; line-height: 1.6;
+  }
+  .note code { background:#222; padding:1px 5px; border-radius:4px; color:#ffd28a; }
+  .footer-actions {
+    position: sticky; bottom: 0; background: linear-gradient(0deg,#0f1115 70%,transparent);
+    padding: 14px 0 6px; display: flex; gap: 10px; align-items: center;
+  }
+  .count { color: var(--edit); font-weight: 600; }
+  #tableWrap { max-height: 60vh; overflow: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .msg { padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+  .msg.err { background: #3a1c1c; border: 1px solid #6b2b2b; color: #ffb3b3; }
+  .msg.ok { background: #12301f; border: 1px solid #1f6b3f; color: #a7f0c0; }
+  .empty { padding: 30px; text-align: center; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎮 SWF 数值修改器 <span style="font-size:12px;color:var(--muted)">v1 · 本地离线 · 不上传</span></h1>
+  <p>导入 Flash SWF → 扫描数值常量(金钱/血量/伤害等)→ 修改 → 导出新 SWF。支持 AS2(ActionScript 2)与 AS3(ABC 常量池)。</p>
+</header>
+
+<div class="wrap">
+  <div id="dropZone" class="drop">
+    <div style="font-size:15px;margin-bottom:6px">把 <b>.swf</b> 文件拖到这里,或点击选择</div>
+    <div style="font-size:12px">建议用 <b>Edge / Chrome</b> 打开本页面(需浏览器原生解压能力)</div>
+    <input id="fileInput" type="file" accept=".swf" class="hidden" />
+  </div>
+
+  <div id="msg"></div>
+
+  <div id="editor" class="hidden">
+    <div class="bar">
+      <div class="item">文件:<b id="fName">-</b></div>
+      <div class="item">格式:<b id="fSig">-</b>(<span id="fComp">-</span>)</div>
+      <div class="item">Flash 版本:<b id="fVer">-</b></div>
+      <div class="item">脚本类型:<span id="fType" class="tag">-</span></div>
+      <div class="item">数值常量:<b id="fCount">0</b> 个</div>
+    </div>
+
+    <div class="controls">
+      <input id="search" class="search" type="text" placeholder="🔎 搜索:输入当前值(如 100)或上下文关键词(如 money / hp / gold)" />
+      <select id="typeFilter">
+        <option value="">全部类型</option>
+        <option value="int">整数 int</option>
+        <option value="uint">无符号 uint</option>
+        <option value="double">小数 double</option>
+        <option value="float">单精度 float</option>
+      </select>
+      <label style="font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px">
+        <input id="onlyEdited" type="checkbox" style="min-width:auto" /> 只看已修改
+      </label>
+      <div class="replacer">
+        <span style="font-size:12px;color:var(--muted)">批量替换</span>
+        <input id="findVal" type="number" step="any" placeholder="查找值" />
+        <span style="color:var(--muted)">→</span>
+        <input id="repVal" type="number" step="any" placeholder="替换为" />
+        <button id="applyReplace" class="ghost">应用</button>
+      </div>
+    </div>
+
+    <div id="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:52px">#</th>
+            <th style="width:90px">类型</th>
+            <th style="width:170px">当前值</th>
+            <th>位置 / 上下文提示</th>
+            <th style="width:150px">新值</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      提示:AS2 会显示数值附近的变量名/字符串作为线索;AS3 常量池无相邻名字,建议直接用<b>游戏里看到的数值</b>搜索定位(例如金钱 100 → 搜 <code>100</code>)。修改后点“应用并导出”。仅改动<b>固定长度的数值</b>,不改文件结构,导出的 SWF 可正常运行。
+    </div>
+
+    <div class="footer-actions">
+      <button id="exportBtn" class="primary">💾 应用并导出 SWF</button>
+      <button id="resetBtn" class="ghost">重置全部修改</button>
+      <button id="closeBtn" class="ghost">换个文件</button>
+      <span class="item">待应用修改:<span id="dirtyCount" class="count">0</span> 处</span>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+//  工具状态
+// ============================================================
+const state = {
+  fileName: "",
+  sig: "",           // FWS / CWS / ZWS
+  version: 0,
+  compression: "",   // none / zlib
+  body: null,        // Uint8Array,解压后的 SWF 主体(不含 8 字节头)
+  headerEnd: 0,      // tag 区起始偏移(RECT + frameRate + frameCount 之后)
+  scriptType: "",    // AS2 / AS3 / none
+  constants: [],     // 所有可编辑数值常量
+  as3Regions: [],    // AS3 的 DoABC 区块(用于导出重打包)
+};
+
+// ============================================================
+//  二进制读取辅助
+// ============================================================
+function readU32LE(u8, off) {
+  return (u8[off] | (u8[off+1]<<8) | (u8[off+2]<<16) | (u8[off+3]<<24)) >>> 0;
+}
+function dvInt32(u8, off) {
+  return new DataView(u8.buffer, u8.byteOffset + off, 4).getInt32(0, true);
+}
+function dvFloat32(u8, off) {
+  return new DataView(u8.buffer, u8.byteOffset + off, 4).getFloat32(0, true);
+}
+// AS2 push double:两个 32 位字前后交换,再按小端读取
+function readAS2Double(u8, off) {
+  const t = new Uint8Array(8);
+  t[0]=u8[off+4]; t[1]=u8[off+5]; t[2]=u8[off+6]; t[3]=u8[off+7];
+  t[4]=u8[off+0]; t[5]=u8[off+1]; t[6]=u8[off+2]; t[7]=u8[off+3];
+  return new DataView(t.buffer).getFloat64(0, true);
+}
+function writeAS2Double(u8, off, value) {
+  const t = new Uint8Array(8);
+  new DataView(t.buffer).setFloat64(0, value, true);
+  u8[off+0]=t[4]; u8[off+1]=t[5]; u8[off+2]=t[6]; u8[off+3]=t[7];
+  u8[off+4]=t[0]; u8[off+5]=t[1]; u8[off+6]=t[2]; u8[off+7]=t[3];
+}
+// AVM2 可变长度整数
+function readVarU32(u8, ref) {
+  let result = 0, shift = 0, byte;
+  do { byte = u8[ref.p++]; result |= (byte & 0x7f) << shift; shift += 7; }
+  while ((byte & 0x80) && shift < 35);
+  return result >>> 0;
+}
+function encodeVarU32(value) {
+  value = value >>> 0;
+  const out = [];
+  do { let b = value & 0x7f; value >>>= 7; if (value) b |= 0x80; out.push(b); } while (value);
+  return out;
+}
+
+// ============================================================
+//  解压 / 压缩(浏览器原生 deflate = zlib 格式,正好对应 CWS)
+// ============================================================
+async function inflate(u8) {
+  const ds = new DecompressionStream("deflate");
+  const stream = new Blob([u8]).stream().pipeThrough(ds);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function deflate(u8) {
+  const cs = new CompressionStream("deflate");
+  const stream = new Blob([u8]).stream().pipeThrough(cs);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+// ============================================================
+//  读取 SWF:解压主体,定位 tag 区
+// ============================================================
+async function loadSWF(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  const sig = String.fromCharCode(bytes[0], bytes[1], bytes[2]);
+  const version = bytes[3];
+  if (sig !== "FWS" && sig !== "CWS" && sig !== "ZWS")
+    throw new Error("这不是有效的 SWF 文件(文件头不是 FWS/CWS/ZWS)。");
+  if (sig === "ZWS")
+    throw new Error("该文件为 ZWS(LZMA 压缩),本工具暂不支持;可先用工具转成 CWS/FWS 再导入。");
+
+  let body, compression;
+  if (sig === "FWS") { body = bytes.slice(8); compression = "none"; }
+  else { body = await inflate(bytes.slice(8)); compression = "zlib"; }
+
+  // 跳过 RECT(影片边界)+ frameRate(u16) + frameCount(u16)
+  const nbits = body[0] >> 3;
+  const rectBytes = Math.ceil((5 + nbits * 4) / 8);
+  const headerEnd = rectBytes + 4;
+
+  state.sig = sig; state.version = version; state.compression = compression;
+  state.body = body; state.headerEnd = headerEnd;
+  return { sig, version, compression, headerEnd };
+}
+
+// ============================================================
+//  遍历 tag(回调 code, headerStart, bodyStart, bodyEnd)
+// ============================================================
+function walkTags(body, start, end, cb) {
+  let p = start;
+  while (p + 2 <= end) {
+    const headerStart = p;
+    const tcl = body[p] | (body[p+1] << 8); p += 2;
+    const code = tcl >> 6;
+    let len = tcl & 0x3f;
+    if (len === 0x3f) { len = readU32LE(body, p); p += 4; }
+    const bodyStart = p, bodyEnd = p + len;
+    if (bodyEnd > end) break;
+    cb(code, headerStart, bodyStart, bodyEnd);
+    p = bodyEnd;
+    if (code === 0) break; // End
+  }
+}
+
+// ============================================================
+//  AS2:扫描 DoAction(12) / DoInitAction(59),含 DefineSprite(39) 递归
+// ============================================================
+const TD = new TextDecoder("utf-8");
+function readCString(body, p) {
+  const start = p;
+  while (body[p] !== 0 && p < body.length) p++;
+  const str = TD.decode(body.subarray(start, p));
+  return { str, next: p + 1 };
+}
+
+function scanAS2() {
+  const body = state.body;
+  const out = [];
+  let idc = 0;
+
+  function scanActions(actStart, actEnd, label) {
+    let i = actStart;
+    let pool = [];
+    let ctx = []; // 最近出现的字符串/标识符
+    const pushCtx = (s) => { if (s) { ctx.push(s); if (ctx.length > 5) ctx.shift(); } };
+
+    while (i < actEnd) {
+      const code = body[i];
+      if (code === 0) break;
+      if (code < 0x80) { i += 1; continue; }
+      const len = body[i+1] | (body[i+2] << 8);
+      const dataStart = i + 3;
+      const dataEnd = dataStart + len;
+
+      if (code === 0x88) { // ActionConstantPool
+        const count = body[dataStart] | (body[dataStart+1] << 8);
+        pool = []; let q = dataStart + 2;
+        for (let k = 0; k < count && q < dataEnd; k++) {
+          const r = readCString(body, q); pool.push(r.str); q = r.next;
+        }
+      } else if (code === 0x96) { // ActionPush
+        let q = dataStart;
+        while (q < dataEnd) {
+          const type = body[q]; q++;
+          if (type === 0) { const r = readCString(body, q); pushCtx(r.str); q = r.next; }
+          else if (type === 1) { out.push({ id: idc++, kind:"AS2", type:"float", off:q, size:4, value: dvFloat32(body,q), ctx:[...ctx], label }); q += 4; }
+          else if (type === 2 || type === 3) { /* null / undefined */ }
+          else if (type === 4) { q += 1; }      // register
+          else if (type === 5) { q += 1; }      // boolean
+          else if (type === 6) { out.push({ id: idc++, kind:"AS2", type:"double", off:q, size:8, value: readAS2Double(body,q), ctx:[...ctx], label }); q += 8; }
+          else if (type === 7) { out.push({ id: idc++, kind:"AS2", type:"int", off:q, size:4, value: dvInt32(body,q), ctx:[...ctx], label }); q += 4; }
+          else if (type === 8) { pushCtx(pool[body[q]]); q += 1; }
+          else if (type === 9) { pushCtx(pool[body[q] | (body[q+1]<<8)]); q += 2; }
+          else { break; }
+        }
+      }
+      i = dataEnd;
+    }
+  }
+
+  function walk(start, end, depth) {
+    walkTags(body, start, end, (code, hs, bs, be) => {
+      if (code === 12) scanActions(bs, be, "DoAction");
+      else if (code === 59) scanActions(bs + 2, be, "DoInitAction");
+      else if (code === 39 && depth < 6) walk(bs + 4, be, depth + 1); // DefineSprite
+    });
+  }
+  walk(state.headerEnd, body.length, 0);
+  return out;
+}
+
+// ============================================================
+//  AS3:解析 DoABC(72 / 82)的常量池 int / uint / double
+// ============================================================
+function scanAS3() {
+  const body = state.body;
+  const out = [];
+  const regions = [];
+  let idc = 0;
+
+  walkTags(body, state.headerEnd, body.length, (code, hs, bs, be) => {
+    if (code !== 72 && code !== 82) return;
+    let abcStart = bs, flags = 0, name = "";
+    if (code === 82) {
+      flags = readU32LE(body, bs);
+      const r = readCString(body, bs + 4);
+      name = r.str; abcStart = r.next;
+    }
+    const region = parseABC(body, abcStart, be, code, hs, bs, flags, name);
+    if (!region) return;
+    const ri = regions.length;
+    regions.push(region);
+    region.ints.forEach((v, k) => { if (k > 0) out.push({ id: idc++, kind:"AS3", type:"int", ri, pool:"ints", k, value: v|0, ctx:[], label:"ABC #"+ri }); });
+    region.uints.forEach((v, k) => { if (k > 0) out.push({ id: idc++, kind:"AS3", type:"uint", ri, pool:"uints", k, value: v>>>0, ctx:[], label:"ABC #"+ri }); });
+    region.doubles.forEach((v, k) => { if (k > 0) out.push({ id: idc++, kind:"AS3", type:"double", ri, pool:"doubles", k, value: v, ctx:[], label:"ABC #"+ri }); });
+  });
+
+  state.as3Regions = regions;
+  return out;
+}
+
+function parseABC(body, abcStart, abcEnd, tagCode, headerStart, bodyStart, flags, name) {
+  const ref = { p: abcStart };
+  const minor = body[ref.p] | (body[ref.p+1]<<8); ref.p += 2;
+  const major = body[ref.p] | (body[ref.p+1]<<8); ref.p += 2;
+
+  // int pool
+  const intCount = readVarU32(body, ref);
+  const ints = [0];
+  for (let i = 1; i < intCount; i++) ints.push(readVarU32(body, ref) | 0);
+  // uint pool
+  const uintCount = readVarU32(body, ref);
+  const uints = [0];
+  for (let i = 1; i < uintCount; i++) uints.push(readVarU32(body, ref) >>> 0);
+  // double pool
+  const doubleCount = readVarU32(body, ref);
+  const doubles = [NaN];
+  for (let i = 1; i < doubleCount; i++) {
+    doubles.push(new DataView(body.buffer, body.byteOffset + ref.p, 8).getFloat64(0, true));
+    ref.p += 8;
+  }
+  const tailStart = ref.p; // double 段结束 = string 段开始;之后原样保留
+
+  return {
+    tagCode, headerStart, bodyStart, abcStart, abcEnd, flags, name,
+    minor, major, intCount, uintCount, doubleCount, ints, uints, doubles, tailStart,
+  };
+}
+
+// 重新序列化某个 ABC 区块(仅 int/uint/double 值可能变化,其余原样)
+function serializeABC(body, region) {
+  const parts = [];
+  parts.push(region.minor & 0xff, (region.minor >> 8) & 0xff);
+  parts.push(region.major & 0xff, (region.major >> 8) & 0xff);
+  // int
+  parts.push(...encodeVarU32(region.intCount));
+  for (let i = 1; i < region.intCount; i++) parts.push(...encodeVarU32(region.ints[i] >>> 0));
+  // uint
+  parts.push(...encodeVarU32(region.uintCount));
+  for (let i = 1; i < region.uintCount; i++) parts.push(...encodeVarU32(region.uints[i] >>> 0));
+  // double
+  parts.push(...encodeVarU32(region.doubleCount));
+  const d8 = new Uint8Array(8), dv = new DataView(d8.buffer);
+  for (let i = 1; i < region.doubleCount; i++) {
+    dv.setFloat64(0, region.doubles[i], true);
+    for (let b = 0; b < 8; b++) parts.push(d8[b]);
+  }
+  const tail = body.subarray(region.tailStart, region.abcEnd);
+  const abc = new Uint8Array(parts.length + tail.length);
+  abc.set(parts, 0); abc.set(tail, parts.length);
+  return abc;
+}
+
+// ============================================================
+//  导出:应用修改 → 重建 body → 压缩 → 下载
+// ============================================================
+function concatBytes(arrs) {
+  let n = 0; for (const a of arrs) n += a.length;
+  const out = new Uint8Array(n); let o = 0;
+  for (const a of arrs) { out.set(a, o); o += a.length; }
+  return out;
+}
+function tagHeaderBytes(code, len) {
+  if (len < 0x3f) {
+    const v = (code << 6) | len;
+    return new Uint8Array([v & 0xff, (v >> 8) & 0xff]);
+  }
+  const v = (code << 6) | 0x3f;
+  return new Uint8Array([v & 0xff, (v >> 8) & 0xff, len & 0xff, (len>>8)&0xff, (len>>16)&0xff, (len>>>24)&0xff]);
+}
+
+async function buildModifiedSWF() {
+  const dirty = state.constants.filter(c => c.newValue !== undefined && c.newValue !== null && !Number.isNaN(c.newValue));
+  let newBody;
+
+  if (state.scriptType === "AS3") {
+    // 写回各区块的数值
+    for (const c of dirty) {
+      const region = state.as3Regions[c.ri];
+      if (c.pool === "doubles") region.doubles[c.k] = c.newValue;
+      else if (c.pool === "ints") region.ints[c.k] = c.newValue | 0;
+      else if (c.pool === "uints") region.uints[c.k] = c.newValue >>> 0;
+    }
+    // 逐 tag 重建 body(仅替换被编辑过的 DoABC)
+    const editedRegions = new Set(dirty.map(c => c.ri));
+    const segs = [ state.body.subarray(0, state.headerEnd) ];
+    walkTags(state.body, state.headerEnd, state.body.length, (code, hs, bs, be) => {
+      const region = state.as3Regions.find(r => r.headerStart === hs);
+      if (region && editedRegions.has(state.as3Regions.indexOf(region))) {
+        const newAbc = serializeABC(state.body, region);
+        let tagBody;
+        if (region.tagCode === 82) {
+          const nameBytes = new TextEncoder().encode(region.name);
+          tagBody = concatBytes([
+            new Uint8Array([region.flags & 0xff,(region.flags>>8)&0xff,(region.flags>>16)&0xff,(region.flags>>>24)&0xff]),
+            nameBytes, new Uint8Array([0]), newAbc,
+          ]);
+        } else tagBody = newAbc;
+        segs.push(tagHeaderBytes(code, tagBody.length), tagBody);
+      } else {
+        segs.push(state.body.subarray(hs, be));
+      }
+    });
+    newBody = concatBytes(segs);
+  } else {
+    // AS2:定长原地修改
+    newBody = state.body.slice();
+    for (const c of dirty) {
+      if (c.type === "int") new DataView(newBody.buffer, newBody.byteOffset + c.off, 4).setInt32(0, c.newValue|0, true);
+      else if (c.type === "float") new DataView(newBody.buffer, newBody.byteOffset + c.off, 4).setFloat32(0, c.newValue, true);
+      else if (c.type === "double") writeAS2Double(newBody, c.off, c.newValue);
+    }
+  }
+
+  // 组装文件头:sig + version + fileLength(u32,未压缩总长) + body
+  const fileLength = 8 + newBody.length;
+  const head = new Uint8Array(8);
+  head[0] = state.sig.charCodeAt(0); head[1] = state.sig.charCodeAt(1); head[2] = state.sig.charCodeAt(2);
+  head[3] = state.version;
+  new DataView(head.buffer).setUint32(4, fileLength, true);
+
+  const payload = state.compression === "zlib" ? await deflate(newBody) : newBody;
+  return concatBytes([head, payload]);
+}
+
+// ============================================================
+//  UI 逻辑
+// ============================================================
+const $ = (id) => document.getElementById(id);
+const dropZone = $("dropZone"), fileInput = $("fileInput");
+
+function showMsg(text, type) {
+  $("msg").innerHTML = text ? `<div class="msg ${type||''}">${text}</div>` : "";
+}
+
+dropZone.addEventListener("click", () => fileInput.click());
+dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("over"); });
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("over"));
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault(); dropZone.classList.remove("over");
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener("change", (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+async function handleFile(file) {
+  showMsg("");
+  state.fileName = file.name;
+  try {
+    const buf = await file.arrayBuffer();
+    await loadSWF(buf);
+
+    // 判定脚本类型
+    let hasAS3 = false, hasAS2 = false;
+    walkTags(state.body, state.headerEnd, state.body.length, (code) => {
+      if (code === 72 || code === 82) hasAS3 = true;
+      if (code === 12 || code === 59) hasAS2 = true;
+    });
+
+    if (hasAS3) { state.scriptType = "AS3"; state.constants = scanAS3(); }
+    else if (hasAS2) { state.scriptType = "AS2"; state.constants = scanAS2(); }
+    else { state.scriptType = "none"; state.constants = []; }
+
+    renderInfo();
+    renderRows();
+    $("editor").classList.remove("hidden");
+    dropZone.classList.add("hidden");
+    if (state.constants.length === 0)
+      showMsg("已加载,但没有扫描到可编辑的数值常量(可能数值都以内联字节码形式存在)。", "err");
+  } catch (err) {
+    showMsg("❌ " + err.message, "err");
+    console.error(err);
+  }
+}
+
+function renderInfo() {
+  $("fName").textContent = state.fileName;
+  $("fSig").textContent = state.sig;
+  $("fComp").textContent = state.compression === "zlib" ? "zlib 压缩" : "未压缩";
+  $("fVer").textContent = state.version;
+  const t = $("fType");
+  t.className = "tag " + (state.scriptType === "AS3" ? "as3" : state.scriptType === "AS2" ? "as2" : "");
+  t.textContent = state.scriptType === "none" ? "未检测到脚本" : "ActionScript " + state.scriptType.slice(2);
+  $("fCount").textContent = state.constants.length;
+}
+
+function fmtVal(c) {
+  if (c.type === "double" || c.type === "float") {
+    if (Number.isInteger(c.value)) return String(c.value);
+    return Number(c.value.toPrecision(12)).toString();
+  }
+  return String(c.value);
+}
+function ctxHTML(c) {
+  const parts = [];
+  parts.push(`<span style="color:#6b7280">[${c.label}]</span>`);
+  if (c.ctx && c.ctx.length) parts.push(c.ctx.map(s => `<span class="k">${escapeHtml(s)}</span>`).join(" · "));
+  return parts.join(" ");
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function filtered() {
+  const q = $("search").value.trim().toLowerCase();
+  const tf = $("typeFilter").value;
+  const onlyEd = $("onlyEdited").checked;
+  return state.constants.filter(c => {
+    if (tf && c.type !== tf) return false;
+    if (onlyEd && (c.newValue === undefined || c.newValue === null)) return false;
+    if (!q) return true;
+    if (fmtVal(c).toLowerCase().includes(q)) return true;
+    if (c.ctx && c.ctx.join(" ").toLowerCase().includes(q)) return true;
+    return false;
+  });
+}
+
+const LIMIT = 800;
+function renderRows() {
+  const list = filtered();
+  const rows = $("rows");
+  rows.innerHTML = "";
+  const shown = list.slice(0, LIMIT);
+  const frag = document.createDocumentFragment();
+  for (const c of shown) {
+    const tr = document.createElement("tr");
+    if (c.newValue !== undefined && c.newValue !== null) tr.className = "edited";
+    tr.innerHTML =
+      `<td style="color:#6b7280">${c.id}</td>` +
+      `<td><span class="ttype ${c.type}">${c.type}</span></td>` +
+      `<td class="val">${escapeHtml(fmtVal(c))}</td>` +
+      `<td class="ctx">${ctxHTML(c)}</td>` +
+      `<td></td>`;
+    const td = tr.lastChild;
+    const inp = document.createElement("input");
+    inp.type = "number"; inp.step = "any"; inp.className = "newval";
+    inp.placeholder = "不改";
+    if (c.newValue !== undefined && c.newValue !== null) { inp.value = c.newValue; inp.classList.add("dirty"); }
+    inp.addEventListener("input", () => {
+      if (inp.value === "") { delete c.newValue; inp.classList.remove("dirty"); tr.classList.remove("edited"); }
+      else { c.newValue = parseFloat(inp.value); inp.classList.add("dirty"); tr.classList.add("edited"); }
+      updateDirty();
+    });
+    td.appendChild(inp);
+    frag.appendChild(tr);
+  }
+  rows.appendChild(frag);
+  if (list.length === 0) rows.innerHTML = `<tr><td colspan="5" class="empty">没有匹配的常量</td></tr>`;
+  else if (list.length > LIMIT) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="5" class="empty">共 ${list.length} 条,仅显示前 ${LIMIT} 条,请用搜索缩小范围</td>`;
+    rows.appendChild(tr);
+  }
+  updateDirty();
+}
+
+function updateDirty() {
+  const n = state.constants.filter(c => c.newValue !== undefined && c.newValue !== null && !Number.isNaN(c.newValue)).length;
+  $("dirtyCount").textContent = n;
+}
+
+$("search").addEventListener("input", renderRows);
+$("typeFilter").addEventListener("change", renderRows);
+$("onlyEdited").addEventListener("change", renderRows);
+
+$("applyReplace").addEventListener("click", () => {
+  const fv = parseFloat($("findVal").value), rv = parseFloat($("repVal").value);
+  if (Number.isNaN(fv) || Number.isNaN(rv)) { showMsg("请填写“查找值”和“替换为”。", "err"); return; }
+  let n = 0;
+  for (const c of state.constants) {
+    if (Math.abs(c.value - fv) < 1e-9) { c.newValue = rv; n++; }
+  }
+  showMsg(`已把 ${n} 处值为 ${fv} 的常量标记为 ${rv}(还需点“应用并导出”生效)。`, "ok");
+  renderRows();
+});
+
+$("resetBtn").addEventListener("click", () => {
+  for (const c of state.constants) delete c.newValue;
+  renderRows(); showMsg("已清除全部待应用修改。", "ok");
+});
+
+$("closeBtn").addEventListener("click", () => {
+  $("editor").classList.add("hidden");
+  dropZone.classList.remove("hidden");
+  showMsg(""); fileInput.value = "";
+  state.constants = []; state.as3Regions = []; state.body = null;
+});
+
+$("exportBtn").addEventListener("click", async () => {
+  const n = state.constants.filter(c => c.newValue !== undefined && c.newValue !== null).length;
+  if (n === 0) { showMsg("还没有任何修改。请在“新值”里填数,或用批量替换。", "err"); return; }
+  try {
+    showMsg("正在打包…", "ok");
+    const out = await buildModifiedSWF();
+    const blob = new Blob([out], { type: "application/x-shockwave-flash" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const base = state.fileName.replace(/\.swf$/i, "");
+    a.href = url; a.download = base + "_modified.swf";
+    a.click();
+    URL.revokeObjectURL(url);
+    showMsg(`✅ 已导出 ${base}_modified.swf(应用了 ${n} 处修改,文件 ${(out.length/1024).toFixed(1)} KB)。`, "ok");
+  } catch (err) {
+    showMsg("❌ 导出失败:" + err.message, "err");
+    console.error(err);
+  }
+});
+
+// 兼容性检查
+if (typeof DecompressionStream === "undefined" || typeof CompressionStream === "undefined") {
+  showMsg("⚠️ 当前浏览器不支持原生解压/压缩(DecompressionStream)。请改用较新的 Edge 或 Chrome 打开本页面。", "err");
+}
+</script>
+</body>
+</html>
